@@ -989,3 +989,60 @@ body:has(.light-mode) {
 /* Accuracy summary */
 .light-mode .acc-spark-label { fill: rgba(60, 30, 5, 0.88); }
 .light-mode .acc-edge-label  { fill: rgba(90, 55, 18, 0.5); }
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+/*
+ * Breakpoint 1 (~1700px): left panel starts overlapping the chessboard.
+ * Hide it and re-centre the board in the space left of the right panel.
+ * Formula: board centred between viewport-left and right-panel-left-edge
+ *   right-panel left = vw - 64 - (294 + 5vh)  →  vw - 358 - 5vh
+ *   board margin-left = (available_width - board_width) / 2 - app-main-padding
+ *                     = ((vw - 358 - 5vh) - 596) / 2 - 32
+ *                     = 50vw - 525px - 2.5vh
+ */
+@media (max-width: 1700px) {
+  .left-panel {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: calc(50vw - 525px - 2.5vh);
+  }
+
+  .header-selector-row .game-selector-row {
+    margin-left: calc(50vw - 525px - 2.5vh);
+  }
+}
+
+/*
+ * Breakpoint 2 (~1400px): right panel also gets too close.
+ * Hide both panels and fully centre the board.
+ */
+@media (max-width: 1400px) {
+  .left-panel,
+  .right-panel {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .header-selector-row {
+    justify-content: center;
+  }
+
+  .header-selector-row .game-selector-row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* Breakpoint 3: remove chess clock on small screens */
+@media (max-width: 700px) {
+  .chess-clock {
+    display: none;
+  }
+}
