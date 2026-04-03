@@ -83,21 +83,27 @@ export default function GameSelector({ games, selectedGame, onSelect }) {
           {filtered.length === 0 && (
             <li className="selector-empty">No games found</li>
           )}
-          {filtered.map((game) => (
-            <li
-              key={game.id}
-              className={`selector-option ${game.id === activeId ? 'selected' : ''}`}
-              onMouseDown={() => handleSelect(game)}
-            >
-              <div className="option-title">{game.title}</div>
-              <div className="option-meta">
-                <span className="option-white">♔ {game.white}</span>
-                <span className="option-vs">vs</span>
-                <span className="option-black">♚ {game.black}</span>
-                <span className="option-event">{game.event}</span>
-              </div>
-            </li>
-          ))}
+          {filtered.map((game) => {
+            const isSelected = game.id === selectedGame?.id
+            return (
+              <li
+                key={game.id}
+                className={`selector-option ${isSelected ? 'selected selected-disabled' : ''}`}
+                onMouseDown={isSelected ? undefined : () => handleSelect(game)}
+              >
+                <div className="option-title">
+                  {game.title}
+                  {isSelected && <span className="option-check">✓</span>}
+                </div>
+                <div className="option-meta">
+                  <span className="option-white">♔ {game.white}</span>
+                  <span className="option-vs">vs</span>
+                  <span className="option-black">♚ {game.black}</span>
+                  <span className="option-event">{game.event}</span>
+                </div>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

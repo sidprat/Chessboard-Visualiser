@@ -148,10 +148,26 @@
   padding-left: 10px;
 }
 
+.selector-option.selected-disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 .option-title {
   font-size: 13px;
   font-weight: 600;
   color: #c8c8ff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.option-check {
+  font-size: 11px;
+  color: #7c7cff;
+  flex-shrink: 0;
 }
 
 .option-meta {
@@ -241,6 +257,7 @@
 }
 
 .light-mode .option-title { color: #3d2408; }
+.light-mode .option-check { color: #a07030; }
 .light-mode .option-white { color: #2a1a08; }
 .light-mode .option-black { color: #7a5c38; }
 .light-mode .option-vs    { color: #c4a870; }
