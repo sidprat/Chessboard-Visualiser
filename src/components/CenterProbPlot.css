@@ -1,0 +1,168 @@
+.cpp-wrap {
+  position: relative;
+  display: block;
+  margin-left: 20px;
+}
+
+.cpp-panes {
+  display: flex;
+  gap: 0px;
+  align-items: flex-start;
+}
+
+.cpp-panes > svg:last-child {
+  margin-left: -36px;
+}
+
+.cpp-svg { display: block; flex-shrink: 0; }
+
+.cpp-pane-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  fill: rgba(255, 255, 255, 0.82);
+}
+
+.cpp-bg {
+  fill: #07070e;
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 1;
+}
+
+.cpp-grid-line {
+  stroke: rgba(255, 255, 255, 0.055);
+  stroke-width: 1;
+}
+
+.cpp-mid-line {
+  stroke: rgba(160, 160, 255, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.cpp-tick {
+  font-size: 9px;
+  fill: rgba(255, 255, 255, 0.22);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.cpp-axis-label {
+  font-size: 8.5px;
+  fill: rgba(255, 255, 255, 0.15);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.cpp-dot { transition: r 0.1s ease, fill-opacity 0.1s ease; }
+
+/* ─── Tooltip ───────────────────────────────────────────────────────────────── */
+.cpp-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  width: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 8px 10px;
+  background: rgba(10, 10, 26, 0.58);
+  backdrop-filter: blur(28px) saturate(200%) brightness(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 10px 32px rgba(0, 0, 0, 0.6),
+    0 3px 10px  rgba(0, 0, 0, 0.4),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px  0 rgba(0, 0, 0, 0.18);
+}
+
+.cpp-tooltip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(148deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(124, 124, 255, 0.04) 40%,
+    transparent 65%);
+  pointer-events: none;
+}
+
+.cpp-tt-row {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  position: relative;
+  z-index: 1;
+}
+
+.cpp-tt-top { margin-bottom: 5px; }
+
+.cpp-tt-piece {
+  width: 22px; height: 22px;
+  object-fit: contain; flex-shrink: 0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8));
+}
+
+.cpp-tt-num   { font-size: 10px; color: #5a5a90; font-weight: 500; flex-shrink: 0; }
+.cpp-tt-san   { font-size: 14px; font-weight: 700; color: #d0d0ff; flex: 1;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cpp-tt-prob {
+  font-size: 10px; color: #5c5ca0;
+  background: rgba(124,124,255,0.1);
+  border: 1px solid rgba(124,124,255,0.2);
+  padding: 1px 5px; border-radius: 6px; flex-shrink: 0;
+}
+
+.cpp-tt-cls {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  text-transform: capitalize; padding: 1px 8px;
+  border-radius: 10px; border: 1px solid; flex-shrink: 0;
+}
+
+.cpp-tt-centre {
+  font-size: 9px; color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+/* ─── Light mode ─────────────────────────────────────────────────────────────── */
+.light-mode .cpp-pane-title { fill: rgba(60, 30, 5, 0.88); }
+
+.light-mode .cpp-bg {
+  fill: #E9DEC9;
+  stroke: rgba(80, 45, 10, 0.08);
+}
+
+.light-mode .cpp-grid-line { stroke: rgba(80, 45, 10, 0.1); }
+.light-mode .cpp-mid-line  { stroke: rgba(100, 65, 15, 0.32); }
+.light-mode .cpp-tick       { fill: rgba(90, 55, 18, 0.6); }
+.light-mode .cpp-axis-label { fill: rgba(90, 55, 18, 0.45); }
+
+.light-mode .cpp-tooltip {
+  background: rgba(237, 220, 185, 0.75);
+  border-color: rgba(140, 90, 20, 0.25);
+  box-shadow:
+    0 10px 32px rgba(80, 50, 10, 0.25),
+    0 3px 10px  rgba(80, 50, 10, 0.15),
+    inset 0 1.5px 0 rgba(255, 240, 200, 0.6),
+    inset 0 -1px  0 rgba(100, 60, 10, 0.12);
+}
+
+.light-mode .cpp-tooltip::before {
+  background: linear-gradient(148deg,
+    rgba(255, 240, 200, 0.4) 0%,
+    rgba(200, 150, 60, 0.08) 40%,
+    transparent 65%);
+}
+
+.light-mode .cpp-tt-num  { color: #9a7040; }
+.light-mode .cpp-tt-san  { color: #3d2008; }
+.light-mode .cpp-tt-prob {
+  color: #7a5020;
+  background: rgba(140, 90, 20, 0.1);
+  border-color: rgba(140, 90, 20, 0.22);
+}
+.light-mode .cpp-tt-centre { color: rgba(90, 55, 18, 0.5); }

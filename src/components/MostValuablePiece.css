@@ -1,0 +1,327 @@
+.mvp-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px;
+}
+
+.mvp-player {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* ── Header (same style as sm-header) ── */
+.mvp-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 1px;
+  width: 90px;
+}
+
+.mvp-king {
+  width: 15px;
+  height: 15px;
+}
+
+.mvp-player-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.03em;
+}
+
+/* ── Body: piece icon + heatmap side-by-side ── */
+.mvp-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mvp-piece-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 90px;
+}
+
+.mvp-piece-wrap {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mvp-wreath-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.mvp-wreath-light {
+  /* Shift the purple wreath to gold for light mode */
+  filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(0.7);
+}
+
+.mvp-piece-icon {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+}
+
+.mvp-piece-name {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: rgba(180, 170, 255, 0.6);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mvp-heatmap-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mvp-heatmap {
+  display: block;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* ── Cell tooltip ── */
+.mvp-cell-tip {
+  position: absolute;
+  z-index: 60;
+  pointer-events: none;
+  min-width: 120px;
+  border-radius: 9px;
+  overflow: hidden;
+  padding: 6px 9px 7px;
+
+  background: rgba(10, 10, 26, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.55),
+    0 2px 8px  rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.mvp-cell-tip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(140deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(160, 130, 255, 0.04) 45%,
+    transparent 65%);
+  pointer-events: none;
+}
+
+.mvp-tip-sq {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(200, 190, 255, 0.55);
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.mvp-tip-moves {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.mvp-tip-move-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  white-space: nowrap;
+}
+
+.mvp-tip-movenum {
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(180, 170, 255, 0.4);
+  letter-spacing: 0.03em;
+}
+
+.mvp-tip-bottom-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.mvp-tip-san {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(220, 215, 255, 0.9);
+  flex: 1;
+}
+
+.mvp-tip-delta {
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mvp-tip-more {
+  font-size: 9px;
+  color: rgba(180, 170, 255, 0.35);
+  margin-top: 1px;
+}
+
+/* ── Light mode tooltip ── */
+.mvp-cell-tip-light {
+  background: rgba(240, 225, 195, 0.88);
+  border-color: rgba(140, 90, 20, 0.22);
+  box-shadow:
+    0 8px 24px rgba(80, 50, 10, 0.2),
+    0 2px 8px  rgba(80, 50, 10, 0.12),
+    inset 0 1px 0 rgba(255, 245, 220, 0.7);
+}
+
+.mvp-cell-tip-light::before {
+  background: linear-gradient(140deg,
+    rgba(255, 245, 210, 0.45) 0%,
+    rgba(180, 130, 60, 0.06) 45%,
+    transparent 65%);
+}
+
+.mvp-cell-tip-light .mvp-tip-sq {
+  color: rgba(100, 65, 20, 0.55);
+}
+
+.mvp-cell-tip-light .mvp-tip-movenum {
+  color: rgba(110, 70, 20, 0.45);
+}
+
+.mvp-cell-tip-light .mvp-tip-san {
+  color: rgba(40, 20, 5, 0.9);
+}
+
+.mvp-cell-tip-light .mvp-tip-more {
+  color: rgba(100, 65, 20, 0.4);
+}
+
+/* ── Stats column (right side of body) ── */
+.mvp-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 7px;
+  padding: 6px 10px;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.mvp-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.mvp-stat-sep {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+  margin: 3px 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.mvp-stat-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: rgba(180, 170, 255, 0.42);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mvp-stat-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(200, 195, 255, 0.88);
+  letter-spacing: 0.01em;
+}
+
+
+
+
+
+
+
+
+/* ── Divider ── */
+.mvp-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 1px 0;
+}
+
+/* ── Light mode ── */
+.light-mode .mvp-player-label {
+  color: rgba(60, 30, 5, 0.88);
+}
+
+.light-mode .mvp-piece-name {
+  color: rgba(100, 65, 20, 0.55);
+}
+
+.light-mode .mvp-stats {
+  background: rgba(120, 80, 20, 0.07);
+}
+
+.light-mode .mvp-stat-label {
+  color: rgba(100, 65, 20, 0.5);
+}
+
+.light-mode .mvp-stat-value {
+  color: rgba(50, 25, 5, 0.85);
+}
+
+.light-mode .mvp-stat-sep {
+  background: rgba(120, 80, 20, 0.12);
+}
+
+.light-mode .mvp-divider {
+  background: rgba(120, 80, 20, 0.12);
+}

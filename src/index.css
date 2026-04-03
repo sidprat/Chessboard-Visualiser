@@ -1,0 +1,22 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Remove focus outline globally */
+*:focus,
+*:focus-visible {
+  outline: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0e0e1c;
+  color: #e0e0f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}

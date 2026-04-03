@@ -1,0 +1,71 @@
+.eval-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 20px;
+  /* 520px = full board outer frame: 20px top labels + 480px grid + 20px bottom labels */
+  height: 520px;
+  flex-shrink: 0;
+}
+
+.eval-bar {
+  width: 20px;
+  height: 500px;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: #1a1a30;
+  border: 1px solid #2a2a44;
+}
+
+/* Black portion (top) */
+.eval-bar-black {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #1e1e2e;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* White portion (bottom) */
+.eval-bar-white {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #d8d8f0;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Thin separator line at boundary */
+.eval-bar-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(124, 124, 255, 0.5);
+  transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.eval-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #44446a;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ─── Light mode ────────────────────────────────────────────────────────────── */
+.light-mode .eval-bar {
+  background: #d4c4a0;
+  border-color: #b89c6c;
+}
+
+.light-mode .eval-bar-black { background: #6b4226; }
+.light-mode .eval-bar-white { background: #f0d9b5; }
+.light-mode .eval-bar-divider { background: rgba(140, 90, 30, 0.6); }
+.light-mode .eval-label { color: #a07838; }

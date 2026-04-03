@@ -1,0 +1,54 @@
+/* ─── SVG chess piece wrapper ──────────────────────────────────────────────── */
+.chess-piece {
+  width: 82%;
+  height: 82%;
+  display: block;
+  overflow: visible;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.square:hover .chess-piece {
+  transform: scale(1.08);
+}
+
+/* ─── White piece palette ──────────────────────────────────────────────────── */
+.chess-piece-w .pc-a     { fill: #f2eeff; }
+.chess-piece-w .pc-b     { fill: #cfc4ef; }
+.chess-piece-w .pc-c     { fill: #9b8dd4; }
+.chess-piece-w .pc-hi    { fill: rgba(255, 255, 255, 0.70); }
+.chess-piece-w .pc-shine { fill: rgba(255, 255, 255, 0.95); }
+.chess-piece-w .pc-detail { fill: none; stroke: rgba(90, 70, 160, 0.32); stroke-width: 0.8px; }
+
+.chess-piece-w {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 0 16px rgba(200, 195, 255, 0.22));
+}
+
+.square:hover .chess-piece-w {
+  filter:
+    drop-shadow(0 5px 12px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 20px rgba(210, 205, 255, 0.38));
+}
+
+/* ─── Black piece palette ──────────────────────────────────────────────────── */
+.chess-piece-b .pc-a     { fill: #4e3faa; }
+.chess-piece-b .pc-b     { fill: #281a62; }
+.chess-piece-b .pc-c     { fill: #120830; }
+.chess-piece-b .pc-hi    { fill: rgba(140, 110, 240, 0.52); }
+.chess-piece-b .pc-shine { fill: rgba(170, 145, 255, 0.82); }
+.chess-piece-b .pc-detail { fill: none; stroke: rgba(0, 0, 0, 0.45); stroke-width: 0.8px; }
+
+.chess-piece-b {
+  filter:
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.65))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 12px rgba(80, 65, 170, 0.18));
+}
+
+.square:hover .chess-piece-b {
+  filter:
+    drop-shadow(0 5px 12px rgba(0, 0, 0, 0.72))
+    drop-shadow(0 0 18px rgba(100, 82, 200, 0.32));
+}

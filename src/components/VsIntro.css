@@ -1,0 +1,483 @@
+/* ─── Overlay ─────────────────────────────────────────────────────────────── */
+.vs-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+
+
+/* ─── Halves ──────────────────────────────────────────────────────────────── */
+.vs-half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 6%;
+}
+
+.vs-half-left {
+  background:
+    radial-gradient(ellipse 60% 70% at 70% 50%, rgba(40, 36, 80, 0.6) 0%, transparent 70%),
+    linear-gradient(160deg, #111128 0%, #080814 100%);
+  animation: vsSlideInLeft 0.65s cubic-bezier(0.34, 1.1, 0.64, 1) forwards;
+}
+
+.vs-half-right {
+  background:
+    radial-gradient(ellipse 60% 70% at 30% 50%, rgba(20, 20, 50, 0.6) 0%, transparent 70%),
+    linear-gradient(200deg, #0d0d20 0%, #06060f 100%);
+  animation: vsSlideInRight 0.65s cubic-bezier(0.34, 1.1, 0.64, 1) forwards;
+}
+
+.vs-phase-exit .vs-half-left {
+  animation: vsSlideOutLeft 0.6s cubic-bezier(0.55, 0, 1, 0.45) forwards !important;
+}
+.vs-phase-exit .vs-half-right {
+  animation: vsSlideOutRight 0.6s cubic-bezier(0.55, 0, 1, 0.45) forwards !important;
+}
+
+@keyframes vsSlideInLeft   { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+@keyframes vsSlideInRight  { from { transform: translateX(100%)  } to { transform: translateX(0) } }
+@keyframes vsSlideOutLeft  { from { transform: translateX(0) } to { transform: translateX(-100%) } }
+@keyframes vsSlideOutRight { from { transform: translateX(0) } to { transform: translateX(100%)  } }
+
+
+/* ─── Center badge ────────────────────────────────────────────────────────── */
+.vs-center-badge {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  animation: vsBadgeIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) 0.55s both;
+}
+
+.vs-phase-exit .vs-center-badge {
+  animation: vsBadgeOut 0.28s ease-in forwards !important;
+}
+
+@keyframes vsBadgeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.75); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes vsBadgeOut {
+  to { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+}
+
+.vs-vs-text {
+  font-size: 64px;
+  font-weight: 900;
+  color: #dcdcff;
+  letter-spacing: 8px;
+  line-height: 1;
+  text-shadow:
+    0 0 20px rgba(160, 140, 255, 0.9),
+    0 0 50px rgba(124, 124, 255, 0.5),
+    0 0 100px rgba(100, 100, 255, 0.25);
+}
+
+.vs-divider-line {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(160, 140, 255, 0.5), transparent);
+}
+
+.vs-game-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #a0a0cc;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vs-event-label {
+  font-size: 12px;
+  color: #55557a;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.vs-skip-hint {
+  font-size: 10px;
+  color: #2e2e50;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+
+/* ─── Player card (liquid glass) ─────────────────────────────────────────── */
+.vs-player-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 36px 44px;
+  border-radius: 28px;
+  min-width: 260px;
+  overflow: hidden;
+
+  background: rgba(18, 18, 40, 0.48);
+  backdrop-filter: blur(36px) saturate(200%) brightness(1.2);
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.65),
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    inset 0 2px 0 rgba(255, 255, 255, 0.17),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    inset 1px 0 0 rgba(255, 255, 255, 0.06),
+    inset -1px 0 0 rgba(255, 255, 255, 0.06);
+
+  animation: vsCardIn 0.5s cubic-bezier(0.34, 1.15, 0.64, 1) 0.62s both;
+}
+
+.vs-phase-exit .vs-player-card {
+  animation: vsCardOut 0.3s ease-in forwards !important;
+}
+
+@keyframes vsCardIn  { from { opacity: 0; transform: translateY(28px) scale(0.95) } to { opacity: 1; transform: none } }
+@keyframes vsCardOut { to   { opacity: 0; transform: translateY(-12px) scale(0.97) } }
+
+/* Shimmer highlight */
+.vs-card-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(180, 170, 255, 0.06) 40%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  pointer-events: none;
+}
+
+
+/* ─── Avatar ──────────────────────────────────────────────────────────────── */
+.vs-avatar-ring {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-card-white .vs-avatar-ring {
+  background: radial-gradient(circle, #2c2c58 0%, #18183a 100%);
+  box-shadow:
+    0 0 0 2px rgba(200, 200, 255, 0.18),
+    0 0 0 5px rgba(200, 200, 255, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.vs-card-black .vs-avatar-ring {
+  background: radial-gradient(circle, #16162e 0%, #0a0a1a 100%);
+  box-shadow:
+    0 0 0 2px rgba(100, 100, 160, 0.2),
+    0 0 0 5px rgba(100, 100, 160, 0.07),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.vs-avatar-piece {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.85));
+}
+
+
+/* ─── Player info ─────────────────────────────────────────────────────────── */
+.vs-player-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #dcdcff;
+  letter-spacing: -0.2px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.vs-player-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.vs-flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.vs-country {
+  color: #7878a8;
+  font-weight: 500;
+}
+
+.vs-rating {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8888ff;
+  background: rgba(124, 124, 255, 0.12);
+  border: 1px solid rgba(124, 124, 255, 0.22);
+  padding: 1px 9px;
+  border-radius: 10px;
+}
+
+.vs-color-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 3px 14px;
+  border-radius: 12px;
+}
+
+.vs-color-white {
+  color: #c0c0e8;
+  background: rgba(200, 200, 240, 0.09);
+  border: 1px solid rgba(200, 200, 240, 0.18);
+}
+
+.vs-color-black {
+  color: #606090;
+  background: rgba(90, 90, 150, 0.09);
+  border: 1px solid rgba(90, 90, 150, 0.18);
+}
+
+/* ─── Stockfish analysis section (below center badge) ──────────────────────── */
+.vs-analysis-section {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 200px;
+  pointer-events: none;
+  animation: vsBadgeIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) 0.55s both;
+}
+
+.vs-progress-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.vs-phase-exit .vs-analysis-section {
+  animation: vsBadgeOut 0.28s ease-in forwards !important;
+}
+
+.vs-analysis-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: center;
+}
+
+.vs-label-pct {
+  font-size: 15px;
+  font-weight: 700;
+  color: #dcdcff;
+  letter-spacing: 0px;
+  line-height: 1;
+}
+
+.vs-label-msg {
+  font-size: 11px;
+  color: rgba(160, 150, 255, 0.55);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* ─── Chess mini-board ──────────────────────────────────────────────────────── */
+.vs-chess-board {
+  position: relative;
+  width: 78px;   /* 3 × 26px */
+  height: 78px;
+  display: grid;
+  grid-template-columns: repeat(3, 26px);
+  grid-template-rows: repeat(3, 26px);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(160, 140, 255, 0.25);
+  box-shadow:
+    0 0 16px rgba(100, 80, 255, 0.25),
+    0 0 4px  rgba(100, 80, 255, 0.15);
+}
+
+.vs-cell {
+  width: 26px;
+  height: 26px;
+}
+
+.vs-cell-dark  { background: #1a1640; }
+.vs-cell-light { background: #2e2860; }
+
+.vs-cell-check {
+  background: rgba(220, 60, 60, 0.55);
+  box-shadow: inset 0 0 8px rgba(255, 80, 80, 0.6);
+}
+
+.vs-chess-piece {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.9));
+  transition: left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              top  0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vs-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vs-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #7c7cff 0%, #a8a8ff 100%);
+  box-shadow: 0 0 8px rgba(124, 124, 255, 0.6);
+  transition: width 0.3s ease;
+}
+
+/* ─── Light mode ──────────────────────────────────────────────────────────── */
+
+/* Halves */
+.light-mode .vs-half-left {
+  background:
+    radial-gradient(ellipse 60% 70% at 70% 50%, rgba(220, 190, 140, 0.5) 0%, transparent 70%),
+    linear-gradient(160deg, #f0e6d0 0%, #e8dcc0 100%);
+}
+.light-mode .vs-half-right {
+  background:
+    radial-gradient(ellipse 60% 70% at 30% 50%, rgba(200, 170, 120, 0.4) 0%, transparent 70%),
+    linear-gradient(200deg, #ece0c8 0%, #e4d4b0 100%);
+}
+
+/* Player card */
+.light-mode .vs-player-card {
+  background: rgba(255, 248, 235, 0.65);
+  border-color: rgba(180, 140, 80, 0.3);
+  box-shadow:
+    0 32px 80px rgba(80, 50, 10, 0.22),
+    0 8px 24px rgba(80, 50, 10, 0.14),
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(120, 80, 20, 0.1),
+    inset 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 0 rgba(255, 255, 255, 0.4);
+}
+.light-mode .vs-card-shine {
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(220, 190, 140, 0.18) 40%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+}
+
+/* Avatar rings */
+.light-mode .vs-card-white .vs-avatar-ring {
+  background: radial-gradient(circle, #f0e8d0 0%, #ddd0b0 100%);
+  box-shadow:
+    0 0 0 2px rgba(160, 120, 60, 0.25),
+    0 0 0 5px rgba(160, 120, 60, 0.08),
+    0 10px 30px rgba(80, 50, 10, 0.25);
+}
+.light-mode .vs-card-black .vs-avatar-ring {
+  background: radial-gradient(circle, #d8c8a0 0%, #c4b080 100%);
+  box-shadow:
+    0 0 0 2px rgba(120, 90, 30, 0.3),
+    0 0 0 5px rgba(120, 90, 30, 0.1),
+    0 10px 30px rgba(80, 50, 10, 0.25);
+}
+
+/* Text */
+.light-mode .vs-player-name  { color: #2a1a08; }
+.light-mode .vs-country       { color: #7a5c38; }
+.light-mode .vs-rating {
+  color: #92560a;
+  background: rgba(160, 100, 20, 0.1);
+  border-color: rgba(160, 100, 20, 0.25);
+}
+.light-mode .vs-color-white {
+  color: #5a3c18;
+  background: rgba(180, 140, 80, 0.12);
+  border-color: rgba(180, 140, 80, 0.28);
+}
+.light-mode .vs-color-black {
+  color: #3d2408;
+  background: rgba(100, 70, 20, 0.12);
+  border-color: rgba(100, 70, 20, 0.22);
+}
+
+/* Center badge */
+.light-mode .vs-vs-text {
+  color: #5a3808;
+  text-shadow:
+    0 0 20px rgba(160, 100, 30, 0.5),
+    0 0 50px rgba(140, 90, 20, 0.25);
+}
+.light-mode .vs-divider-line {
+  background: linear-gradient(to right, transparent, rgba(160, 100, 30, 0.4), transparent);
+}
+.light-mode .vs-game-title  { color: #7a5030; }
+.light-mode .vs-event-label { color: #b89060; }
+.light-mode .vs-skip-hint   { color: #c8a878; }
+
+/* Analysis section */
+.light-mode .vs-label-pct  { color: #3d2408; }
+.light-mode .vs-label-msg  { color: rgba(100, 65, 15, 0.6); }
+.light-mode .vs-analysis-label { color: rgba(80, 50, 10, 0.65); }
+.light-mode .vs-progress-track  { background: rgba(100, 60, 10, 0.12); }
+.light-mode .vs-progress-fill   {
+  background: linear-gradient(90deg, #a07030 0%, #c8a060 100%);
+  box-shadow: 0 0 8px rgba(160, 112, 48, 0.5);
+}
+
+/* Mini chess board */
+.light-mode .vs-cell-dark  { background: #c8a878; }
+.light-mode .vs-cell-light { background: #e8d4a8; }
+.light-mode .vs-cell-check {
+  background: rgba(180, 60, 30, 0.45);
+  box-shadow: inset 0 0 8px rgba(200, 80, 40, 0.5);
+}
+.light-mode .vs-chess-board {
+  border-color: rgba(140, 90, 30, 0.35);
+  box-shadow:
+    0 0 16px rgba(160, 100, 30, 0.2),
+    0 0 4px  rgba(140, 90, 20, 0.12);
+}

@@ -1,0 +1,112 @@
+.ahm-wrap {
+  position: relative;
+}
+
+.ahm-panes {
+  display: flex;
+  gap: 4px;
+}
+
+.ahm-svg {
+  display: block;
+}
+
+/* Board squares */
+.ahm-sq-light {
+  fill: #b8b0d8;
+}
+.ahm-sq-dark {
+  fill: #403870;
+}
+
+.light-mode .ahm-sq-light {
+  fill: #e8d5b0;
+}
+.light-mode .ahm-sq-dark {
+  fill: #c4a06a;
+}
+
+/* Board border */
+.ahm-border {
+  stroke: rgba(160, 150, 220, 0.3);
+  stroke-width: 1;
+}
+.light-mode .ahm-border {
+  stroke: rgba(120, 80, 30, 0.3);
+}
+
+/* Hover target */
+.ahm-hover-target {
+  cursor: crosshair;
+}
+
+/* Labels */
+.ahm-pane-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  fill: rgba(255, 255, 255, 0.82);
+}
+.light-mode .ahm-pane-title {
+  fill: rgba(60, 30, 5, 0.88);
+}
+
+.ahm-pane-subtitle {
+  font-size: 8.5px;
+  fill: rgba(160, 150, 220, 0.5);
+  text-transform: uppercase;
+}
+.light-mode .ahm-pane-subtitle {
+  fill: rgba(90, 55, 18, 0.45);
+}
+
+.ahm-rank-label,
+.ahm-file-label {
+  font-size: 9px;
+  fill: rgba(160, 150, 220, 0.65);
+}
+.light-mode .ahm-rank-label,
+.light-mode .ahm-file-label {
+  fill: rgba(90, 55, 18, 0.55);
+}
+
+/* Tooltip */
+.ahm-tooltip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: rgba(28, 24, 52, 0.92);
+  border: 1px solid rgba(140, 120, 255, 0.35);
+  border-radius: 7px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.light-mode .ahm-tooltip {
+  background: rgba(245, 235, 210, 0.95);
+  border-color: rgba(160, 110, 40, 0.4);
+  box-shadow: 0 4px 16px rgba(80,40,10,0.18);
+}
+
+.ahm-tt-sq {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(200, 190, 255, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.light-mode .ahm-tt-sq {
+  color: rgba(90, 55, 18, 0.9);
+}
+
+.ahm-tt-count {
+  font-size: 11px;
+  color: rgba(160, 150, 220, 0.8);
+}
+.light-mode .ahm-tt-count {
+  color: rgba(120, 80, 30, 0.75);
+}

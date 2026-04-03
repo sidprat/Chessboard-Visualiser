@@ -1,0 +1,117 @@
+.sm-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sm-player {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sm-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 1px;
+}
+
+.sm-king {
+  width: 15px;
+  height: 15px;
+}
+
+.sm-player-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.03em;
+}
+
+.sm-player-total {
+  margin-left: auto;
+  font-size: 10px;
+  color: rgba(180, 170, 255, 0.55);
+}
+
+.sm-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sm-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sm-piece-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.sm-bar-track {
+  flex: 1;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.sm-bar-fill {
+  height: 100%;
+  display: flex;
+  gap: 2px;
+  border-radius: 5px;
+  overflow: hidden;
+  min-width: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sm-segment {
+  height: 100%;
+  background: rgba(160, 140, 255, 0.82);
+  min-width: 2px;
+}
+
+.sm-count {
+  font-size: 10px;
+  color: rgba(180, 170, 255, 0.65);
+  min-width: 22px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sm-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 1px 0;
+}
+
+/* ── Light mode ── */
+.light-mode .sm-player-label {
+  color: rgba(60, 30, 5, 0.88);
+}
+
+.light-mode .sm-player-total {
+  color: rgba(90, 55, 18, 0.5);
+}
+
+.light-mode .sm-bar-track {
+  background: rgba(120, 80, 20, 0.1);
+}
+
+.light-mode .sm-segment {
+  background: rgba(110, 65, 15, 0.72);
+}
+
+.light-mode .sm-count {
+  color: rgba(90, 55, 18, 0.65);
+}
+
+.light-mode .sm-divider {
+  background: rgba(120, 80, 20, 0.12);
+}

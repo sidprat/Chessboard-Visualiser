@@ -1,0 +1,496 @@
+/* ─── Outer skeuomorphic frame ────────────────────────────────────────────── */
+.board-outer-frame {
+  display: inline-flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  user-select: none;
+  position: relative;
+
+  /* Dark polished material — top-left light source */
+  background: linear-gradient(
+    148deg,
+    #2e2c44 0%,
+    #1e1c30 40%,
+    #161420 100%
+  );
+
+  border: 1px solid #3a384e;
+
+  box-shadow:
+    /* Elevation */
+    0 28px 72px rgba(0, 0, 0, 0.95),
+    0 10px 28px rgba(0, 0, 0, 0.75),
+    0 4px 10px  rgba(0, 0, 0, 0.55),
+    /* Outer bevel — top/left bright, bottom/right dark */
+    inset 0  1px 0   rgba(255, 255, 255, 0.13),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.65),
+    inset  1px 0 0   rgba(255, 255, 255, 0.07),
+    inset -1px 0 0   rgba(0, 0, 0, 0.45);
+}
+
+/* Top-left specular sheen on the frame surface */
+.board-outer-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    transparent 55%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Board flip ──────────────────────────────────────────────────────────── */
+.board-outer-frame {
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.board-outer-frame.flipped {
+  transform: rotate(180deg);
+  /* Negate X/Y offsets so the shadow stays visually below the board */
+  box-shadow:
+    0 -28px 72px rgba(0, 0, 0, 0.95),
+    0 -10px 28px rgba(0, 0, 0, 0.75),
+    0 -4px  10px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0   rgba(255, 255, 255, 0.13),
+    inset 0  3px 8px rgba(0, 0, 0, 0.65),
+    inset -1px 0 0   rgba(255, 255, 255, 0.07),
+    inset  1px 0 0   rgba(0, 0, 0, 0.45);
+}
+
+/* Pieces / labels / overlay spin upright using the individual `rotate` property
+   so that hover's `transform: scale()` composes with it without conflict */
+.board-outer-frame.flipped.pieces-flipped .chess-piece-img,
+.board-outer-frame.flipped.pieces-flipped .board-coord,
+.board-outer-frame.flipped.pieces-flipped .piece-overlay img {
+  rotate: 180deg;
+  transition: rotate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Frame edges ─────────────────────────────────────────────────────────── */
+.board-edge {
+  position: relative;
+  z-index: 1;
+}
+
+/* Horizontal edges — file labels (a–h) */
+.board-edge-h {
+  display: flex;
+  padding: 0 22px; /* aligns with rank-label width */
+}
+
+.board-edge-h .board-coord {
+  width: 60px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Vertical edges — rank labels (8–1) */
+.board-edge-v {
+  display: flex;
+  flex-direction: column;
+  width: 22px;
+}
+
+.board-edge-v .board-coord {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-coord {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  /* Engraved look — slightly raised text on dark material */
+  color: rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7), 0 -1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* ─── Middle row ──────────────────────────────────────────────────────────── */
+.board-middle-row {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Recessed well (channel the board sits in) ───────────────────────────── */
+.board-well {
+  position: relative;
+  background: #08080f;
+  box-shadow:
+    inset 0 4px 14px rgba(0, 0, 0, 0.95),
+    inset 0 2px  5px rgba(0, 0, 0, 0.75),
+    inset 4px 0 10px rgba(0, 0, 0, 0.7),
+    inset -4px 0 10px rgba(0, 0, 0, 0.7),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.6),
+    /* thin bright rim just inside the frame edge */
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  border-radius: 2px;
+}
+
+/* ─── Chessboard grid (the glass surface) ────────────────────────────────── */
+.chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  grid-template-rows:    repeat(8, 60px);
+  position: relative;
+  overflow: hidden;
+}
+
+
+/* Board-wide glass shimmer overlay — sits above squares, blends over pieces */
+.chessboard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 25%,
+    transparent 50%,
+    rgba(0, 0, 0,   0.04) 75%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  mix-blend-mode: overlay;
+}
+
+/* ─── Squares — liquid glass tiles ───────────────────────────────────────── */
+.square {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Light square — frosted opalescent glass */
+.square.light {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 38%, transparent 65%),
+    linear-gradient(315deg, rgba(0,0,0,0.06) 0%, transparent 45%),
+    #cdc5f5;
+}
+
+/* Dark square — deep tinted glass */
+.square.dark {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 38%, transparent 65%),
+    linear-gradient(315deg, rgba(0,0,0,0.18) 0%, transparent 45%),
+    #5e48a0;
+}
+
+/* Last-move highlights */
+.square.highlight.light {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 38%, transparent 65%),
+    #b0a8ff;
+}
+
+.square.highlight.dark {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 38%, transparent 65%),
+    #7e68c8;
+}
+
+/* ─── 3D glass pieces ─────────────────────────────────────────────────────── */
+.piece-3d {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* SVG used as shape mask — only alpha channel matters */
+  mask-size:           82%;
+  mask-repeat:         no-repeat;
+  mask-position:       center;
+  -webkit-mask-size:   82%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.square:hover .piece-3d {
+  transform: scale(1.06);
+}
+
+/* ── White pieces — frosted crystal glass, lavender tint ── */
+.piece-3d-w {
+  background:
+    /* Fresnel rim — transparent centre → bright edges */
+    radial-gradient(ellipse at 50% 52%,
+      transparent 32%,
+      rgba(255, 255, 255, 0.45) 68%,
+      rgba(225, 220, 255, 0.70) 100%
+    ),
+    /* Specular hotspot — top-left light source */
+    radial-gradient(ellipse at 30% 22%,
+      rgba(255, 255, 255, 0.98)  0%,
+      rgba(245, 242, 255, 0.65) 18%,
+      transparent                46%
+    ),
+    /* Body gradient — depth / volume */
+    radial-gradient(ellipse at 48% 42%,
+      rgba(238, 234, 255, 0.88)  0%,
+      rgba(205, 198, 252, 0.76) 45%,
+      rgba(165, 155, 225, 0.65) 80%,
+      rgba(140, 130, 205, 0.58) 100%
+    );
+
+  filter:
+    drop-shadow(0 4px 12px rgba(0,   0,   0,   0.42))
+    drop-shadow(0 1px  3px rgba(0,   0,   0,   0.32))
+    drop-shadow(0 0   18px rgba(200, 195, 255, 0.28));
+}
+
+.square:hover .piece-3d-w {
+  filter:
+    drop-shadow(0 5px 14px rgba(0,   0,   0,   0.48))
+    drop-shadow(0 0   22px rgba(210, 205, 255, 0.45));
+}
+
+/* ── Black pieces — smoked glass, deep purple ── */
+.piece-3d-b {
+  background:
+    /* Fresnel rim — purple edge glow */
+    radial-gradient(ellipse at 50% 52%,
+      transparent 30%,
+      rgba(105,  85, 195, 0.38) 66%,
+      rgba(148, 128, 235, 0.52) 100%
+    ),
+    /* Specular hotspot */
+    radial-gradient(ellipse at 30% 22%,
+      rgba(195, 185, 255, 0.48)  0%,
+      rgba(165, 155, 228, 0.20) 22%,
+      transparent                46%
+    ),
+    /* Body gradient */
+    radial-gradient(ellipse at 48% 42%,
+      rgba(72,  58, 138, 0.90)  0%,
+      rgba(42,  32,  95, 0.95) 45%,
+      rgba(18,  12,  52, 0.98) 80%,
+      rgba( 8,   5,  28, 1.00) 100%
+    );
+
+  filter:
+    drop-shadow(0 4px 12px rgba(0,  0,  0,  0.62))
+    drop-shadow(0 1px  3px rgba(0,  0,  0,  0.50))
+    drop-shadow(0 0   14px rgba(90, 70, 185, 0.22));
+}
+
+.square:hover .piece-3d-b {
+  filter:
+    drop-shadow(0 5px 14px rgba(0,  0,  0,  0.68))
+    drop-shadow(0 0   20px rgba(110, 88, 210, 0.38));
+}
+
+/* ─── Piece image ─────────────────────────────────────────────────────────── */
+.chess-piece-img {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+  transition: transform 0.1s ease;
+}
+
+.square:hover .chess-piece-img {
+  transform: scale(1.08);
+}
+
+/* ─── Attempt mode ────────────────────────────────────────────────────────── */
+.chessboard.attempt-active .square {
+  cursor: pointer;
+}
+
+.sq-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(29, 209, 161, 0.25);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sq-selected {
+  box-shadow: inset 0 0 0 1.5px rgba(29, 209, 161, 0.5) !important;
+}
+
+.valid-move-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(18, 140, 108, 0.75);
+  box-shadow: 0 0 5px rgba(18, 140, 108, 0.45);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Correct-move reveal highlight */
+.sq-reveal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(29, 209, 161, 0.25);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Correct-move source — stronger green tint */
+.sq-reveal-src::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(29, 209, 161, 0.50);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Correct-move destination — bright green border */
+.sq-reveal-dest {
+  box-shadow: inset 0 0 0 3px rgba(29, 209, 161, 0.9),
+              0 0 10px rgba(29, 209, 161, 0.35) !important;
+}
+
+/* MVP piece hover highlight */
+.sq-mvp::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(148, 118, 255, 0.22);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sq-mvp {
+  box-shadow: inset 0 0 0 2px rgba(148, 118, 255, 0.75),
+              0 0 12px rgba(148, 118, 255, 0.35) !important;
+}
+
+.light-mode .sq-mvp::after {
+  background: rgba(162, 112, 14, 0.18);
+}
+
+.light-mode .sq-mvp {
+  box-shadow: inset 0 0 0 2px rgba(162, 112, 14, 0.7),
+              0 0 12px rgba(162, 112, 14, 0.25) !important;
+}
+
+/* Capture — ring instead of filled dot */
+.sq-valid:has(.chess-piece-img) .valid-move-dot {
+  width: 54px;
+  height: 54px;
+  background: transparent;
+  border: 3px solid rgba(29, 209, 161, 0.65);
+  box-shadow: none;
+}
+
+/* Flying piece overlay */
+.piece-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  pointer-events: none;
+  z-index: 20;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE — warm wood board
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Frame: warm walnut */
+.light-mode .board-outer-frame {
+  background: linear-gradient(148deg, #8b5e3c 0%, #6b4226 45%, #4e2e18 100%);
+  border-color: #5a3820;
+  box-shadow:
+    0 28px 72px rgba(60, 30, 10, 0.6),
+    0 10px 28px rgba(60, 30, 10, 0.4),
+    0 4px 10px  rgba(60, 30, 10, 0.3),
+    inset 0  1px 0   rgba(255, 220, 170, 0.25),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.45),
+    inset  1px 0 0   rgba(255, 200, 140, 0.15),
+    inset -1px 0 0   rgba(0, 0, 0, 0.30);
+}
+
+.light-mode .board-outer-frame.flipped {
+  box-shadow:
+    0 -28px 72px rgba(60, 30, 10, 0.6),
+    0 -10px 28px rgba(60, 30, 10, 0.4),
+    0 -4px  10px rgba(60, 30, 10, 0.3),
+    inset 0 -1px 0   rgba(255, 220, 170, 0.25),
+    inset 0  3px 8px rgba(0, 0, 0, 0.45),
+    inset -1px 0 0   rgba(255, 200, 140, 0.15),
+    inset  1px 0 0   rgba(0, 0, 0, 0.30);
+}
+
+.light-mode .board-outer-frame::before {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 220, 160, 0.18) 0%,
+    rgba(255, 200, 120, 0.08) 35%,
+    transparent 60%
+  );
+}
+
+.light-mode .board-coord {
+  color: rgba(255, 210, 150, 0.55);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 220, 170, 0.1);
+}
+
+/* Board well */
+.light-mode .board-well {
+  background: #3a2010;
+  box-shadow:
+    inset 0 4px 14px rgba(0, 0, 0, 0.75),
+    inset 0 2px  5px rgba(0, 0, 0, 0.55),
+    inset 4px 0 10px rgba(0, 0, 0, 0.5),
+    inset -4px 0 10px rgba(0, 0, 0, 0.5),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 180, 100, 0.06);
+}
+
+/* Squares: cream and brown */
+.light-mode .square.light {
+  background: #f0d9b5;
+}
+
+.light-mode .square.dark {
+  background: #b58863;
+}
+
+/* Last-move highlights on wood board */
+.light-mode .square.highlight.light {
+  background: #cdd16f;
+}
+
+.light-mode .square.highlight.dark {
+  background: #aaa23a;
+}
+
+/* Glass shimmer toned down */
+.light-mode .chessboard::after {
+  opacity: 0.35;
+}
+
