@@ -52,7 +52,13 @@ export default function GameSelector({ games, selectedGame, onSelect }) {
       <div
         className="selector-input-wrap"
         onMouseDown={(e) => {
-          if (activeId !== null && !open) {
+          if (open) {
+            e.preventDefault()
+            setOpen(false)
+            setActiveId(null)
+            setQuery('')
+            inputRef.current?.blur()
+          } else if (activeId !== null) {
             e.preventDefault()
             setActiveId(null)
           }

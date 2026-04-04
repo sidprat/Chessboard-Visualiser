@@ -481,3 +481,17 @@
     0 0 16px rgba(160, 100, 30, 0.2),
     0 0 4px  rgba(140, 90, 20, 0.12);
 }
+
+/* ─── ≤836px: clock hidden — show only analysis section, centred ────────── */
+@media (max-width: 836px) {
+  .vs-center-badge,
+  .vs-player-card {
+    display: none;
+  }
+
+  .vs-analysis-section {
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}

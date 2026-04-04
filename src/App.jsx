@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { useState, useMemo, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import { Chess } from 'chess.js'
 import Chessboard from './components/Chessboard'
 import TimelineSlider from './components/TimelineSlider'
@@ -304,6 +304,7 @@ export default function App() {
   const [revealFenReady, setRevealFenReady] = useState(false)
   const [boardFlipped, setBoardFlipped] = useState(false)
   const [piecesFlipped, setPiecesFlipped] = useState(false)
+  const [squareSize, setSquareSize] = useState(60)
   const [gameAnalyses, setGameAnalyses]       = useState({})   // gameId → probs[]
   const [analysisProgress, setAnalysisProgress] = useState(null) // null | 0..1
   const analysisVersionRef = useRef(0)
@@ -316,6 +317,11 @@ export default function App() {
   const solvedTimeRef    = useRef(null)
   const sfxRef  = useRef({})   // keyed audio elements for chess sounds
   const tickRef = useRef(null) // dedicated tick element
+  const eventTagRef    = useRef(null)
+  const themeToggleRef = useRef(null)
+  const headerMetaRef  = useRef(null)
+  const whiteRatingRef = useRef(null)
+  const blackRatingRef = useRef(null)
 
   const play = useCallback((move) => {
     if (!move) return
@@ -361,6 +367,77 @@ export default function App() {
       setAnalysisProgress(null)
     })
   }, [selectedGame.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Responsive square size: fill timeline width (vw − 144px) when clock is hidden
+  useEffect(() => {
+    function update() {
+      if (window.innerWidth <= 836) {
+        setSquareSize(Math.max(28, (window.innerWidth - 144) / 8))
+      } else {
+        setSquareSize(60)
+      }
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  // Hide event-tag when:
+  //  (a) its text wraps to more than one line, OR
+  //  (b) its right edge approaches the right edge of the theme toggle.
+  // useLayoutEffect runs synchronously before paint — no flicker.
+  useLayoutEffect(() => {
+    const el = eventTagRef.current
+    const toggle = themeToggleRef.current
+    if (!el) return
+    const check = () => {
+      // Temporarily reveal for measurement
+      el.style.display = ''
+      // (a) multiline: compare nowrap height vs natural height
+      el.style.whiteSpace = 'nowrap'
+      const singleH = el.scrollHeight
+      el.style.whiteSpace = ''
+      const isMultiline = el.scrollHeight > singleH
+      // (b) proximity: hide when toggle right edge is within 40px of label right edge
+      const tagRight = el.getBoundingClientRect().right
+      const toggleRight = toggle ? toggle.getBoundingClientRect().right : window.innerWidth - 32
+      const tooClose = toggleRight - tagRight < 40
+      el.style.display = (isMultiline || tooClose) ? 'none' : ''
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [selectedGame.id])
+
+  // Progressive header-meta hiding as the toggle's right edge closes in:
+  //  1. Show everything → measure → if toggle within 40px of meta right → hide ratings.
+  //  2. Re-measure without ratings → if still within 40px → hide entire meta row.
+  // Single check, two thresholds, no coordination issues between the two levels.
+  useLayoutEffect(() => {
+    const toggle = themeToggleRef.current
+    const meta   = headerMetaRef.current
+    const wr     = whiteRatingRef.current
+    const br     = blackRatingRef.current
+    if (!toggle || !meta) return
+    const check = () => {
+      // Reveal everything for measurement
+      meta.style.display = ''
+      if (wr) wr.style.display = ''
+      if (br) br.style.display = ''
+      const toggleRight = toggle.getBoundingClientRect().right
+      // Level 1: full-width measure → hide ratings if close
+      const fullMetaRight = meta.getBoundingClientRect().right
+      const hideRatings = toggleRight - fullMetaRight < 40
+      if (wr) wr.style.display = hideRatings ? 'none' : ''
+      if (br) br.style.display = hideRatings ? 'none' : ''
+      // Level 2: re-measure without ratings → hide entire meta if still close
+      const slimMetaRight = meta.getBoundingClientRect().right
+      meta.style.display = toggleRight - slimMetaRight < 40 ? 'none' : ''
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [selectedGame.id])
 
   const effectiveProbs = gameAnalyses[selectedGame.id] ?? selectedGame.probs
 
@@ -658,6 +735,7 @@ export default function App() {
             </button>
           </div>
           <button
+            ref={themeToggleRef}
             className={`theme-toggle${lightMode ? ' theme-toggle-light' : ''}${themeToggling ? ' theme-toggle-toggling' : ''}`}
             onClick={() => {
               if (themeToggling) return
@@ -680,17 +758,17 @@ export default function App() {
             </span>
           </button>
         </div>
-        <div className="header-meta">
+        <div ref={headerMetaRef} className="header-meta">
           <span className="player white-player">
             <img src="/pieces/wK.svg" className="player-piece white-piece-icon" alt="White" />
-            {selectedGame.white}{selectedGame.whiteRating && <span className="player-rating">({selectedGame.whiteRating})</span>}
+            {selectedGame.white}{selectedGame.whiteRating && <span ref={whiteRatingRef} className="player-rating">({selectedGame.whiteRating})</span>}
           </span>
           <span className="vs">vs</span>
           <span className="player black-player">
             <img src="/pieces/bK.svg" className="player-piece black-piece-icon" alt="Black" />
-            {selectedGame.black}{selectedGame.blackRating && <span className="player-rating">({selectedGame.blackRating})</span>}
+            {selectedGame.black}{selectedGame.blackRating && <span ref={blackRatingRef} className="player-rating">({selectedGame.blackRating})</span>}
           </span>
-          <span className="event-tag">{selectedGame.event}</span>
+          <span ref={eventTagRef} className="event-tag">{selectedGame.event}</span>
         </div>
       </header>
 
@@ -823,7 +901,7 @@ export default function App() {
 
         {/* ── Main content ── */}
         <div className="main-content">
-        <div className="board-and-clock">
+        <div className="board-and-clock" style={{ '--sq': squareSize + 'px' }}>
           <div className="board-col">
             <div className="board-top-row">
               <div className="move-badge">
@@ -892,6 +970,7 @@ export default function App() {
             <div className="board-row">
               <EvalBar prob={evaluations[moveIndex]?.prob ?? 0.5} />
               <Chessboard
+                squareSize={squareSize}
                 fen={(() => {
                   const showReveal = timeExpired || (attemptResult && revealFenReady)
                   return showReveal && revealMove ? revealMove.fen : fen
@@ -926,12 +1005,14 @@ export default function App() {
           </div>
 
           <div className="clock-col">
-            <div className="nav-buttons">
-              <button onClick={() => setMoveIndex(0)} disabled={attemptMode || moveIndex === 0} title="Start (Home)" className={flashBtn === 0 ? 'nav-btn-flash' : ''}>«</button>
-              <button onClick={() => setMoveIndex((i) => Math.max(i - 1, 0))} disabled={attemptMode || moveIndex === 0} title="Prev (←)" className={flashBtn === 1 ? 'nav-btn-flash' : ''}>‹</button>
-              <button onClick={() => setMoveIndex((i) => Math.min(i + 1, totalMoves))} disabled={attemptMode || moveIndex === totalMoves} title="Next (→)" className={flashBtn === 2 ? 'nav-btn-flash' : ''}>›</button>
-              <button onClick={() => setMoveIndex(totalMoves)} disabled={attemptMode || moveIndex === totalMoves} title="End (End)" className={flashBtn === 3 ? 'nav-btn-flash' : ''}>»</button>
-            </div>
+            {squareSize === 60 && (
+              <div className="nav-buttons">
+                <button onClick={() => setMoveIndex(0)} disabled={attemptMode || moveIndex === 0} title="Start (Home)" className={flashBtn === 0 ? 'nav-btn-flash' : ''}>«</button>
+                <button onClick={() => setMoveIndex((i) => Math.max(i - 1, 0))} disabled={attemptMode || moveIndex === 0} title="Prev (←)" className={flashBtn === 1 ? 'nav-btn-flash' : ''}>‹</button>
+                <button onClick={() => setMoveIndex((i) => Math.min(i + 1, totalMoves))} disabled={attemptMode || moveIndex === totalMoves} title="Next (→)" className={flashBtn === 2 ? 'nav-btn-flash' : ''}>›</button>
+                <button onClick={() => setMoveIndex(totalMoves)} disabled={attemptMode || moveIndex === totalMoves} title="End (End)" className={flashBtn === 3 ? 'nav-btn-flash' : ''}>»</button>
+              </div>
+            )}
             <ChessClock
               moves={selectedGame.moves}
               moveIndex={moveIndex}
@@ -958,6 +1039,15 @@ export default function App() {
             lightMode={lightMode}
           />
         </div>
+
+        {squareSize !== 60 && (
+          <div className="nav-buttons nav-buttons-below">
+            <button onClick={() => setMoveIndex(0)} disabled={attemptMode || moveIndex === 0} title="Start (Home)" className={flashBtn === 0 ? 'nav-btn-flash' : ''}>«</button>
+            <button onClick={() => setMoveIndex((i) => Math.max(i - 1, 0))} disabled={attemptMode || moveIndex === 0} title="Prev (←)" className={flashBtn === 1 ? 'nav-btn-flash' : ''}>‹</button>
+            <button onClick={() => setMoveIndex((i) => Math.min(i + 1, totalMoves))} disabled={attemptMode || moveIndex === totalMoves} title="Next (→)" className={flashBtn === 2 ? 'nav-btn-flash' : ''}>›</button>
+            <button onClick={() => setMoveIndex(totalMoves)} disabled={attemptMode || moveIndex === totalMoves} title="End (End)" className={flashBtn === 3 ? 'nav-btn-flash' : ''}>»</button>
+          </div>
+        )}
 
         <div className="stats-bar">
           <div className="stat">

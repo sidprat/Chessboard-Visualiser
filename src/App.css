@@ -55,25 +55,30 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 0 32px;
   box-sizing: border-box;
   position: relative;
+  z-index: 1000;
 }
 
+/* Width 752px = eval-bar-left → clock-right (board-and-clock 596px + clock overhang 156px).
+ * Transform aligns left edge with eval bar, right edge with clock right.
+ * Panels visible:  board left = vw/2−313−2.5vh → need translateX(calc(63px − 2.5vh))
+ * Panels hidden:   board left = vw/2−376 = centred 752px → transform: none */
 .header-selector-row .game-selector-row {
-  margin-left: calc(100vw - 1050px - 18vh);
-  width: 524px;
+  width: 752px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  transform: translateX(calc(63px - 2.5vh));
 }
 
 /* ─── Theme toggle ────────────────────────────────────────────────────────── */
 .theme-toggle {
   position: absolute;
-  right: 32px;
+  right: 0;
   width: 72px;
   height: 36px;
   border-radius: 18px;
@@ -291,16 +296,16 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   padding: 24px 32px 40px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Left panel */
+/* Left panel — snaps to left edge */
 .left-panel {
   position: absolute;
-  left: 64px;
+  left: 32px;
   top: 64px;
   width: 420px;
   display: flex;
@@ -308,10 +313,10 @@ body {
   gap: 12px;
 }
 
-/* Right panel — wider to use freed real-estate */
+/* Right panel — snaps to right edge */
 .right-panel {
   position: absolute;
-  right: 64px;
+  right: 32px;
   top: 64px;
   width: calc(294px + 5vh);
   display: flex;
@@ -333,13 +338,12 @@ body {
   color: rgba(100, 70, 20, 0.45);
 }
 
-/* Main content column — offset right of left panel */
+/* Main content column — always centred by parent flex */
 .main-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-left: calc(100vw - 1054px - 18vh); /* viewport - padding(32) - right-panel(362+64) - board(596) - gap(18vh) */
 }
 
 /* Board + clock column wrappers */
@@ -377,7 +381,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 524px; /* board frame: 2×22px rank labels + 8×60px grid */
+  width: calc(44px + 8 * var(--sq, 60px)); /* board frame: 2×22px rank labels + 8×sq grid */
   margin-left: 36px; /* eval bar (20px) + gap (16px) = chess board left edge */
   min-height: 34px;
 }
@@ -665,6 +669,11 @@ body {
   gap: 4px;
 }
 
+/* Nav buttons rendered below the timeline at ≤836px */
+.nav-buttons-below {
+  margin-top: 4px;
+}
+
 .nav-buttons button {
   background: #1a1a30;
   border: 1px solid #2a2a44;
@@ -707,7 +716,7 @@ body {
 /* Timeline section */
 .timeline-section {
   width: 100%;
-  padding: 8px 32px;
+  padding: 8px 0;
   box-sizing: border-box;
   margin-top: 16px;
 }
@@ -993,56 +1002,105 @@ body:has(.light-mode) {
 /* ─── Responsive ────────────────────────────────────────────────────────────── */
 
 /*
- * Breakpoint 1 (~1700px): left panel starts overlapping the chessboard.
- * Hide it and re-centre the board in the space left of the right panel.
- * Formula: board centred between viewport-left and right-panel-left-edge
- *   right-panel left = vw - 64 - (294 + 5vh)  →  vw - 358 - 5vh
- *   board margin-left = (available_width - board_width) / 2 - app-main-padding
- *                     = ((vw - 358 - 5vh) - 596) / 2 - 32
- *                     = 50vw - 525px - 2.5vh
+ * Both panels hide when the gap between clock right edge and right panel left
+ * edge would reach 20px.
+ *
+ * Board-col width: 20px (eval) + 16px (gap) + 524px (frame) = 560px, centred.
+ * Clock right edge (viewport): vw/2 + 436
+ *   (clock-col starts at 560-20=540px inside board-row, clock width=176px)
+ * Right panel left edge: vw - 32 - (294 + 5vh) = vw - 326 - 5vh
+ * Gap = vw/2 - 762 - 5vh  →  set = 20px  →  vw = 1564 + 10vh
+ * At 900px height: vw ≈ 1654px → use 1655px.
  */
-@media (max-width: 1700px) {
-  .left-panel {
-    display: none;
-  }
+/*
+ * When panels are visible, shift the board+clock group left so that the gap
+ * between the clock's right edge and the right panel equals the gap between
+ * the left panel and the board's left edge.
+ *
+ * Left panel right edge: 32 + 420 = 452px (fixed)
+ * Right panel left edge: vw - 32 - (294 + 5vh) = vw - 326 - 5vh
+ * Board+clock visible extent: 716px (board-col 560px + clock overlap 156px)
+ * Equating gaps → shift = (−30px − 5vh) / 2 = −15px − 2.5vh (leftward)
+ *
+ * Apply by default; reset to none when panels are hidden so board stays centred.
+ */
+.main-content {
+  transform: translateX(calc(-15px - 2.5vh));
+}
 
-  .main-content {
-    margin-left: calc(50vw - 525px - 2.5vh);
-  }
-
+/* Header selector: panels hidden → centred 752px aligns with board+clock group. */
+@media (max-width: 1655px) {
   .header-selector-row .game-selector-row {
-    margin-left: calc(50vw - 525px - 2.5vh);
+    transform: none;
   }
 }
 
-/*
- * Breakpoint 2 (~1400px): right panel also gets too close.
- * Hide both panels and fully centre the board.
- */
-@media (max-width: 1400px) {
+/* Panels hidden, clock still visible: re-centre the 716px board+clock group.
+ * Clock starts 540px into board-and-clock (560-20), extends 176px → total 716px.
+ * Visual centre offset from board-col centre: 716/2 − 560/2 = 78px right.
+ * Shift left 78px to cancel that asymmetry. */
+@media (max-width: 1655px) {
   .left-panel,
   .right-panel {
     display: none;
   }
-
   .main-content {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .header-selector-row {
-    justify-content: center;
-  }
-
-  .header-selector-row .game-selector-row {
-    margin-left: 0;
-    margin-right: 0;
+    transform: translateX(-78px);
   }
 }
 
-/* Breakpoint 3: remove chess clock on small screens */
-@media (max-width: 700px) {
+/* Header game-selector 837–1040px: left-align with eval bar, maintain 40px gap.
+ * Eval bar left = vw/2−376. Header content starts at 64px, width = vw−128.
+ * margin-left = 50%−376px = (vw−128)/2−376 → item left = 64+(vw/2−440) = vw/2−376 ✓
+ * width     = 50%+296px = (vw−128)/2+296 = vw/2+232 → right = vw−144, gap = 40px ✓ */
+@media (min-width: 837px) and (max-width: 1040px) {
+  .header-selector-row {
+    justify-content: flex-start;
+  }
+  .header-selector-row .game-selector-row {
+    margin-left: calc(50% - 376px);
+    width: calc(50% + 296px);
+    max-width: none;
+  }
+}
+
+/* Clock hidden: board fills full timeline width.
+ * eval-spacer removed so board-row = eval(20)+gap(16)+frame(44+8sq) = 80+8sq = vw-64.
+ * eval-bar left = timeline left (32px), board-frame right = timeline right (vw-32px).
+ *
+ * Breakpoint: timeline (vw-64) approaches board+clock visible width (752px).
+ *   eval(20)+gap(16)+frame(524)+gap(16)+spacer(20) = 596 = board-and-clock width
+ *   clock starts at 596-20=576px, width=176px → right edge at 752px
+ *   vw-64 = 752  →  vw = 816px  + 20px gap margin → use 836px. */
+@media (max-width: 836px) {
   .chess-clock {
     display: none;
+  }
+  .main-content {
+    transform: none;
+  }
+  .eval-spacer {
+    display: none;
+  }
+
+  /* Left-align game-selector with eval bar (eval bar left = 32px; header content left = 64px).
+   * margin-left = −32px → item left = 64−32 = 32px = eval bar left ✓
+   * 100% = content width = vw−128; width = vw−128−48 = vw−176; right = vw−144, gap = 40px ✓ */
+  .header-selector-row {
+    justify-content: flex-start;
+  }
+  .header-selector-row .game-selector-row {
+    margin-left: -32px;
+    width: calc(100% - 48px);
+    max-width: none;
+    flex: none;
+    transform: none;
+  }
+
+  /* Keep nav buttons at same vertical position; right edge flush with board frame right. */
+  .clock-col {
+    left: auto;
+    right: 0;
+    top: 0;
   }
 }

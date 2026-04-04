@@ -4,14 +4,14 @@
   align-items: center;
   justify-content: space-between;
   width: 20px;
-  /* 520px = full board outer frame: 20px top labels + 480px grid + 20px bottom labels */
-  height: 520px;
+  /* 8*sq + 40px = full board outer frame: 20px top labels + grid + 20px bottom labels */
+  height: calc(8 * var(--sq, 60px) + 40px);
   flex-shrink: 0;
 }
 
 .eval-bar {
   width: 20px;
-  height: 500px;
+  height: calc(8 * var(--sq, 60px) + 20px);
   border-radius: 6px;
   overflow: hidden;
   position: relative;

@@ -11,20 +11,17 @@ const PIECE_IMAGES = {
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1']
-const SQUARE_SIZE = 60
-
-
-function squareToCoords(square) {
+function squareToCoords(square, sq) {
   const fileIdx = square.charCodeAt(0) - 97
   const rankIdx = 8 - parseInt(square[1])
-  return { x: fileIdx * SQUARE_SIZE, y: rankIdx * SQUARE_SIZE }
+  return { x: fileIdx * sq, y: rankIdx * sq }
 }
 
 function Piece({ pieceKey }) {
   return <img src={PIECE_IMAGES[pieceKey]} alt={pieceKey} className="chess-piece-img" />
 }
 
-export default function Chessboard({ fen, lastMove, animatingMove, interactive, selectedSquare, validMoves, onSquareClick, revealSquares, revealSrc, revealDest, flipped, piecesFlipped, highlightSquare }) {
+export default function Chessboard({ fen, lastMove, animatingMove, interactive, selectedSquare, validMoves, onSquareClick, revealSquares, revealSrc, revealDest, flipped, piecesFlipped, highlightSquare, squareSize = 60 }) {
   const board = useMemo(() => {
     try { return new Chess(fen).board() }
     catch { return new Chess().board() }
@@ -39,8 +36,8 @@ export default function Chessboard({ fen, lastMove, animatingMove, interactive, 
     if (!animatingMove || !overlayRef.current) return
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
 
-    const from = squareToCoords(animatingMove.from)
-    const to   = squareToCoords(animatingMove.to)
+    const from = squareToCoords(animatingMove.from, squareSize)
+    const to   = squareToCoords(animatingMove.to, squareSize)
     const el   = overlayRef.current
 
     el.style.transition = 'none'
