@@ -1,5 +1,13 @@
+.ahm-outer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+}
+
 .ahm-wrap {
   position: relative;
+  flex-shrink: 0;
 }
 
 .ahm-panes {

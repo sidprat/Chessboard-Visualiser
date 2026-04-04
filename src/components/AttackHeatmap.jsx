@@ -78,6 +78,19 @@ function buildMap(deltas, steps) {
 
 export default function AttackHeatmap({ history, whitePlayer, blackPlayer, lightMode, open }) {
   const [hovCell, setHovCell] = useState(null)
+  const containerRef = useRef(null)
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width
+      if (w > 0) setScale(Math.min(1, w / TOTAL_W))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   const { wMap, bMap, wDeltas, bDeltas } = useMemo(
     () => computeFreedomData(history ?? []),
@@ -227,18 +240,29 @@ export default function AttackHeatmap({ history, whitePlayer, blackPlayer, light
   }
 
   return (
-    <div className="ahm-wrap" style={{ width: TOTAL_W }}>
-      <div className="ahm-panes">
-        {renderPane(bCurrMap, bCurrTotal, bMax, bAvg, 0,        'b', true)}
-        {renderPane(wCurrMap, wCurrTotal, wMax, wAvg, CW + GAP, 'w', false)}
-      </div>
-
-      {hovCell && tipStyle && (
-        <div className="ahm-tooltip" style={tipStyle}>
-          <span className="ahm-tt-sq">{FILES[hovCell.col]}{hovCell.rank + 1}</span>
-          <span className="ahm-tt-count">{hovCell.count} moves</span>
+    <div ref={containerRef} className="ahm-outer">
+      <div
+        className="ahm-wrap"
+        style={{
+          width: TOTAL_W,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top center',
+          marginBottom: `${CH * (scale - 1)}px`,
+          position: 'relative',
+        }}
+      >
+        <div className="ahm-panes">
+          {renderPane(bCurrMap, bCurrTotal, bMax, bAvg, 0,        'b', true)}
+          {renderPane(wCurrMap, wCurrTotal, wMax, wAvg, CW + GAP, 'w', false)}
         </div>
-      )}
+
+        {hovCell && tipStyle && (
+          <div className="ahm-tooltip" style={tipStyle}>
+            <span className="ahm-tt-sq">{FILES[hovCell.col]}{hovCell.rank + 1}</span>
+            <span className="ahm-tt-count">{hovCell.count} moves</span>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

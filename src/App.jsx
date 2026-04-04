@@ -293,6 +293,7 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [hoveredMoveIndex, setHoveredMoveIndex] = useState(null)
   const [openCard, setOpenCard] = useState('move-quality')
+  const [openCardInline, setOpenCardInline] = useState(null)
   const [hoveredPieceSquare, setHoveredPieceSquare] = useState(null)
   const [attemptMode, setAttemptMode] = useState(false)
   const [selectedSquare, setSelectedSquare] = useState(null)
@@ -640,6 +641,7 @@ export default function App() {
     setRevealAnimMove(null)
     setRevealFenReady(false)
     setBoardFlipped(false)
+    setOpenCardInline(null)
   }, [])
 
   // Sound + animation on forward step
@@ -1059,6 +1061,108 @@ export default function App() {
             <span>Black: {Math.floor(blackTotal / 60)}m {(blackTotal % 60).toFixed(2)}s</span>
           </div>
           <div className="stat hint">← → keys or drag timeline</div>
+        </div>
+
+        {/* ── Inline panels (shown when left/right panels are hidden at ≤1655px) ── */}
+        <div className="inline-panels">
+          <div className="panel-section-label">Aggregate Stats</div>
+          <CollapsibleCard
+            title="Average Board State"
+            tooltip="Ternary plot: each move is placed by the board's balance of occupied squares, squares the side to move can reach (attacked), and uncontrolled squares (free). Coloured by move classification."
+            lightMode={lightMode}
+            open={openCardInline === 'mqvs'}
+            onToggle={() => setOpenCardInline(c => c === 'mqvs' ? null : 'mqvs')}
+          >
+            <MoveQualityVsSquares
+              moves={selectedGame.moves} evaluations={evaluations} history={history}
+              moveIndex={moveIndex} lightMode={lightMode} onMoveSelect={setMoveIndex}
+              open={openCardInline === 'mqvs'}
+            />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Board Freedom"
+            tooltip="How often each square was a legal move destination across the whole game. Green = rarely reachable, yellow = average, red = most reachable. Multiple pieces able to reach the same square in a single turn all add to the count."
+            lightMode={lightMode}
+            open={openCardInline === 'attack-heatmap'}
+            onToggle={() => setOpenCardInline(c => c === 'attack-heatmap' ? null : 'attack-heatmap')}
+          >
+            <AttackHeatmap
+              history={history} whitePlayer={selectedGame.white} blackPlayer={selectedGame.black}
+              lightMode={lightMode} open={openCardInline === 'attack-heatmap'}
+            />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Squares Moved"
+            open={openCardInline === 'squares-moved'}
+            onToggle={() => setOpenCardInline(c => c === 'squares-moved' ? null : 'squares-moved')}
+          >
+            <SquaresMoved history={history} lightMode={lightMode} open={openCardInline === 'squares-moved'} />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Most Valuable Piece"
+            open={openCardInline === 'mvp'}
+            onToggle={() => setOpenCardInline(c => c === 'mvp' ? null : 'mvp')}
+          >
+            <MostValuablePiece
+              history={history} evaluations={evaluations} lightMode={lightMode}
+              moveIndex={moveIndex} onPieceHover={setHoveredPieceSquare}
+              onHoverMove={setHoveredMoveIndex} onLeaveMove={() => setHoveredMoveIndex(null)}
+              open={openCardInline === 'mvp'}
+            />
+          </CollapsibleCard>
+          <div className="panel-section-label" style={{ marginTop: 8 }}>Move-Level Stats</div>
+          <CollapsibleCard
+            title="Centre Vulnerability vs Move Quality"
+            tooltip="X-axis: win % change (right = good, left = bad). Y-axis: how many opponent pieces were attacking the centre. Blunders shown in red — see if they cluster under heavy central pressure."
+            lightMode={lightMode}
+            open={openCardInline === 'move-quality'}
+            onToggle={() => setOpenCardInline(c => c === 'move-quality' ? null : 'move-quality')}
+          >
+            <MoveScatterPlot
+              moves={selectedGame.moves} evaluations={evaluations} history={history}
+              moveIndex={moveIndex} whitePlayer={selectedGame.white} blackPlayer={selectedGame.black}
+              onHoverMove={setHoveredMoveIndex} onLeaveMove={() => setHoveredMoveIndex(null)}
+              onSelectMove={setMoveIndex} lightMode={lightMode} open={openCardInline === 'move-quality'}
+            />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Centre Control vs Win Probability"
+            open={openCardInline === 'center-prob'}
+            onToggle={() => setOpenCardInline(c => c === 'center-prob' ? null : 'center-prob')}
+          >
+            <CenterProbPlot
+              moves={selectedGame.moves} evaluations={evaluations} history={history}
+              moveIndex={moveIndex} whitePlayer={selectedGame.white} blackPlayer={selectedGame.black}
+              onHoverMove={setHoveredMoveIndex} onLeaveMove={() => setHoveredMoveIndex(null)}
+              onSelectMove={setMoveIndex} lightMode={lightMode} open={openCardInline === 'center-prob'}
+            />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Clock Pressure vs Move Quality"
+            tooltip="Each dot is a move. X-axis: win % change (right = good, left = bad). Y-axis: clock time remaining. Dots near the bottom were played under time pressure — see if mistakes cluster there."
+            lightMode={lightMode}
+            open={openCardInline === 'clock-quality'}
+            onToggle={() => setOpenCardInline(c => c === 'clock-quality' ? null : 'clock-quality')}
+          >
+            <ClockQualityPlot
+              moves={selectedGame.moves} evaluations={evaluations} moveIndex={moveIndex}
+              whitePlayer={selectedGame.white} blackPlayer={selectedGame.black}
+              onHoverMove={setHoveredMoveIndex} onLeaveMove={() => setHoveredMoveIndex(null)}
+              onSelectMove={setMoveIndex} lightMode={lightMode} open={openCardInline === 'clock-quality'}
+            />
+          </CollapsibleCard>
+          <CollapsibleCard
+            title="Accuracy"
+            open={openCardInline === 'accuracy'}
+            onToggle={() => setOpenCardInline(c => c === 'accuracy' ? null : 'accuracy')}
+          >
+            <AccuracySummary
+              moves={selectedGame.moves} evaluations={evaluations} lightMode={lightMode}
+              moveIndex={moveIndex} onSelectMove={setMoveIndex}
+              onHoverMove={setHoveredMoveIndex} onLeaveMove={() => setHoveredMoveIndex(null)}
+              open={openCardInline === 'accuracy'}
+            />
+          </CollapsibleCard>
         </div>
 
         {showIntro && (
