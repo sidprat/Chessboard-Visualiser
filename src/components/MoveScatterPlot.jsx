@@ -35,8 +35,8 @@ function getPieceCode(move) {
 }
 
 // Shared coordinate helpers — paneX offsets screen x into scatter-wrap coords
-function makeToX(xMin, xMax) {
-  return (d, paneX = 0) => paneX + PAD.l + ((d - xMin) / (xMax - xMin)) * PW
+function makeToX(xMin, xMax, pw) {
+  return (d, paneX = 0) => paneX + PAD.l + ((d - xMin) / (xMax - xMin)) * pw
 }
 function toY(n) { return PAD.t + PH - (n / Y_MAX) * PH }
 
@@ -50,6 +50,20 @@ export default function MoveScatterPlot({
   const [bAnimFrac, setBAnimFrac] = useState(0)
   const wRaf = useRef(null)
   const bRaf = useRef(null)
+  const containerRef = useRef(null)
+  const [cw, setCw] = useState(CW)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([e]) => {
+      const w = e.contentRect.width
+      if (w > 0) setCw(Math.max(CW, Math.floor(w / 2)))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const pw = cw - PAD.l - PAD.r
+  const totalW = cw * 2 + GAP
 
   const moveData = useMemo(() => moves.map((move, i) => {
     const prevProb    = evaluations[i]?.prob ?? 0.5
@@ -71,7 +85,7 @@ export default function MoveScatterPlot({
     return { xMin: Math.min(...deltas) - margin, xMax: Math.max(...deltas) + margin }
   }, [moveData])
 
-  const toX = useMemo(() => makeToX(xMin, xMax), [xMin, xMax])
+  const toX = useMemo(() => makeToX(xMin, xMax, pw), [xMin, xMax, pw])
 
   const xTicks = useMemo(() => {
     const candidates = [-0.4,-0.3,-0.2,-0.15,-0.1,-0.05,0,0.05,0.1,0.15,0.2,0.3,0.4]
@@ -85,8 +99,8 @@ export default function MoveScatterPlot({
 
   const whitePoints = useMemo(() =>
     moveData.filter(d => d.move.color === 'white')
-      .map(d => ({ ...d, centreCount: d.centreCountB, px: toX(d.delta, CW + GAP), py: toY(d.centreCountB) })),
-  [moveData, toX])
+      .map(d => ({ ...d, centreCount: d.centreCountB, px: toX(d.delta, cw + GAP), py: toY(d.centreCountB) })),
+  [moveData, toX, cw])
 
   function startAnim(setter, rafRef) {
     cancelAnimationFrame(rafRef.current)
@@ -127,7 +141,7 @@ export default function MoveScatterPlot({
   if (hovState) {
     const { pt, paneX } = hovState
     const ax = paneX + pt.px - paneX  // pt.px already includes paneX offset
-    const left = Math.min(Math.max(ax - TW / 2, 0), TOTAL_W - TW)
+    const left = Math.min(Math.max(ax - TW / 2, 0), totalW - TW)
     const top  = pt.centreCount >= Y_MAX / 2 ? pt.py + 12 : pt.py - TH - 12
     tipStyle = { left, top }
   }
@@ -136,16 +150,16 @@ export default function MoveScatterPlot({
 
   function renderPane(pts, paneX, dotColor, pieceColor, showYAxis, animFrac) {
     const xOffset = paneX
-    const cx = PAD.l + PW / 2
+    const cx = PAD.l + pw / 2
     const label = pieceColor === 'b' ? 'Black' : 'White'
     return (
-      <svg key={pieceColor} width={CW} height={CH} className="scatter-svg" style={{ overflow: 'visible' }}>
+      <svg key={pieceColor} width={cw} height={CH} className="scatter-svg" style={{ overflow: 'visible' }}>
         {/* Pane title: piece icon + Black/White */}
         <image href={`/pieces/${pieceColor}K.svg`} x={cx - 23} y={2} width={15} height={15} />
         <text x={cx - 4} y={13} className="scatter-pane-title" textAnchor="start">{label}</text>
 
         {/* Plot background */}
-        <rect x={PAD.l} y={PAD.t} width={PW} height={PH} className="scatter-bg" rx="2" />
+        <rect x={PAD.l} y={PAD.t} width={pw} height={PH} className="scatter-bg" rx="2" />
 
         {/* Vertical grid + x-axis ticks (labels only for leftmost, 0, rightmost) */}
         {xTicks.map((v, i) => {
@@ -176,7 +190,7 @@ export default function MoveScatterPlot({
           const y = toY(t)
           return (
             <g key={t}>
-              <line x1={PAD.l} y1={y} x2={PAD.l + PW} y2={y} className="scatter-grid-line" />
+              <line x1={PAD.l} y1={y} x2={PAD.l + pw} y2={y} className="scatter-grid-line" />
               {showYAxis && (
                 <text x={PAD.l - 5} y={y + 4} className="scatter-tick" textAnchor="end">{t}</text>
               )}
@@ -197,7 +211,7 @@ export default function MoveScatterPlot({
 
         {/* X-axis title */}
         <text
-          x={PAD.l + PW / 2} y={CH - 3}
+          x={PAD.l + pw / 2} y={CH - 3}
           className="scatter-axis-label" textAnchor="middle"
         >
           ← ΔWin% →
@@ -238,10 +252,10 @@ export default function MoveScatterPlot({
   }
 
   return (
-    <div className="scatter-wrap" style={{ width: TOTAL_W }}>
+    <div ref={containerRef} className="scatter-wrap" style={{ width: '100%' }}>
       <div className="scatter-panes">
         {renderPane(blackPoints, 0,        lightMode ? DOT_BLACK_LIGHT : DOT_BLACK, 'b', true,  bAnimFrac)}
-        {renderPane(whitePoints, CW + GAP, lightMode ? DOT_WHITE_LIGHT : DOT_WHITE, 'w', false, wAnimFrac)}
+        {renderPane(whitePoints, cw + GAP, lightMode ? DOT_WHITE_LIGHT : DOT_WHITE, 'w', false, wAnimFrac)}
       </div>
 
       {/* Tooltip rendered at wrap level, spanning both panes */}

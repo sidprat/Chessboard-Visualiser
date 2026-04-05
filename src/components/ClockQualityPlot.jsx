@@ -18,8 +18,8 @@ const PW = CW - PAD.l - PAD.r
 const PH = CH - PAD.t - PAD.b
 const TOTAL_W = CW * 2 + GAP
 
-function makeToX(xMin, xMax) {
-  return (d, paneX = 0) => paneX + PAD.l + ((d - xMin) / (xMax - xMin)) * PW
+function makeToX(xMin, xMax, pw) {
+  return (d, paneX = 0) => paneX + PAD.l + ((d - xMin) / (xMax - xMin)) * pw
 }
 
 function getPieceCode(move) {
@@ -44,6 +44,20 @@ export default function ClockQualityPlot({
   const [bAnimFrac, setBAnimFrac] = useState(0)
   const wRaf = useRef(null)
   const bRaf = useRef(null)
+  const containerRef = useRef(null)
+  const [cw, setCw] = useState(CW)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([e]) => {
+      const w = e.contentRect.width
+      if (w > 0) setCw(Math.max(CW, Math.floor(w / 2)))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const pw = cw - PAD.l - PAD.r
+  const totalW = cw * 2 + GAP
 
   const moveData = useMemo(() => {
     const totalWhite = moves.filter(m => m.color === 'white').reduce((s, m) => s + m.timeSeconds, 0)
@@ -88,7 +102,7 @@ export default function ClockQualityPlot({
     return { xMin: Math.min(...deltas) - margin, xMax: Math.max(...deltas) + margin }
   }, [moveData])
 
-  const toX = useMemo(() => makeToX(xMin, xMax), [xMin, xMax])
+  const toX = useMemo(() => makeToX(xMin, xMax, pw), [xMin, xMax, pw])
 
   const xTicks = useMemo(() => {
     const candidates = [-0.4,-0.3,-0.2,-0.15,-0.1,-0.05,0,0.05,0.1,0.15,0.2,0.3,0.4]
@@ -102,8 +116,8 @@ export default function ClockQualityPlot({
 
   const whitePoints = useMemo(() =>
     moveData.filter(d => d.move.color === 'white')
-      .map(d => ({ ...d, px: toX(d.delta, CW + GAP), py: toY(d.timeRemaining) })),
-  [moveData, toX, toY])
+      .map(d => ({ ...d, px: toX(d.delta, cw + GAP), py: toY(d.timeRemaining) })),
+  [moveData, toX, toY, cw])
 
   function startAnim(setter, rafRef) {
     cancelAnimationFrame(rafRef.current)
@@ -142,7 +156,7 @@ export default function ClockQualityPlot({
   let tipStyle = null
   if (hovState) {
     const { pt } = hovState
-    const left = Math.min(Math.max(pt.px - TW / 2, 0), TOTAL_W - TW)
+    const left = Math.min(Math.max(pt.px - TW / 2, 0), totalW - TW)
     const midY = PAD.t + PH / 2
     const top = pt.py < midY ? pt.py + 12 : pt.py - TH - 12
     tipStyle = { left, top }
@@ -151,13 +165,13 @@ export default function ClockQualityPlot({
   const hovPt = hovState?.pt ?? null
 
   function renderPane(pts, paneX, pieceColor, showYAxis, animFrac) {
-    const cx = PAD.l + PW / 2
+    const cx = PAD.l + pw / 2
     const label = pieceColor === 'b' ? 'Black' : 'White'
     return (
-      <svg key={pieceColor} width={CW} height={CH} className="cqp-svg" style={{ overflow: 'visible' }}>
+      <svg key={pieceColor} width={cw} height={CH} className="cqp-svg" style={{ overflow: 'visible' }}>
         <image href={`/pieces/${pieceColor}K.svg`} x={cx - 23} y={2} width={15} height={15} />
         <text x={cx - 4} y={13} className="cqp-pane-title" textAnchor="start">{label}</text>
-        <rect x={PAD.l} y={PAD.t} width={PW} height={PH} className="cqp-bg" rx="2" />
+        <rect x={PAD.l} y={PAD.t} width={pw} height={PH} className="cqp-bg" rx="2" />
 
         {xTicks.map((v, i) => {
           const x = toX(v, 0)
@@ -182,7 +196,7 @@ export default function ClockQualityPlot({
           const y = toY(t)
           return (
             <g key={t}>
-              <line x1={PAD.l} y1={y} x2={PAD.l + PW} y2={y} className="cqp-grid-line" />
+              <line x1={PAD.l} y1={y} x2={PAD.l + pw} y2={y} className="cqp-grid-line" />
               {showYAxis && (
                 <text x={PAD.l - 5} y={y + 4} className="cqp-tick" textAnchor="end">
                   {t >= 60 ? `${Math.floor(t / 60)}m` : `${t}s`}
@@ -199,7 +213,7 @@ export default function ClockQualityPlot({
           </text>
         )}
 
-        <text x={PAD.l + PW / 2} y={CH - 3} className="cqp-axis-label" textAnchor="middle">
+        <text x={PAD.l + pw / 2} y={CH - 3} className="cqp-axis-label" textAnchor="middle">
           ← ΔWin% →
         </text>
 
@@ -232,10 +246,10 @@ export default function ClockQualityPlot({
   }
 
   return (
-    <div className="cqp-wrap" style={{ width: TOTAL_W }}>
+    <div ref={containerRef} className="cqp-wrap" style={{ width: '100%' }}>
       <div className="cqp-panes">
         {renderPane(blackPoints, 0,        'b', true,  bAnimFrac)}
-        {renderPane(whitePoints, CW + GAP, 'w', false, wAnimFrac)}
+        {renderPane(whitePoints, cw + GAP, 'w', false, wAnimFrac)}
       </div>
 
       {hovPt && tipStyle && (

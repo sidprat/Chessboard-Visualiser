@@ -23,7 +23,6 @@ const Y_MAX = 6
 const X_TICKS = [0, 0.25, 0.5, 0.75, 1]
 
 function toY(n) { return PAD.t + PH - (n / Y_MAX) * PH }
-function toX(prob) { return PAD.l + prob * PW }
 
 function getPieceCode(move) {
   if (move.san.startsWith('O-O')) return (move.color === 'white' ? 'w' : 'b') + 'K'
@@ -41,6 +40,21 @@ export default function CenterProbPlot({
   const [bAnimFrac, setBAnimFrac] = useState(0)
   const wRaf = useRef(null)
   const bRaf = useRef(null)
+  const containerRef = useRef(null)
+  const [cw, setCw] = useState(CW)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([e]) => {
+      const w = e.contentRect.width
+      if (w > 0) setCw(Math.max(CW, Math.floor(w / 2)))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const pw = cw - PAD.l - PAD.r
+  const totalW = cw * 2 + GAP
+  const toX = useCallback((prob) => PAD.l + prob * pw, [pw])
 
   const moveData = useMemo(() => moves.map((move, i) => {
     const prevProb = evaluations[i]?.prob ?? 0.5
@@ -61,12 +75,12 @@ export default function CenterProbPlot({
   const blackPoints = useMemo(() =>
     moveData.filter(d => d.move.color === 'black')
       .map(d => ({ ...d, centreCount: d.centreCountB, px: toX(d.playerProb), py: toY(d.centreCountB) })),
-  [moveData])
+  [moveData, toX])
 
   const whitePoints = useMemo(() =>
     moveData.filter(d => d.move.color === 'white')
-      .map(d => ({ ...d, centreCount: d.centreCountW, px: toX(d.playerProb) + CW + GAP, py: toY(d.centreCountW) })),
-  [moveData])
+      .map(d => ({ ...d, centreCount: d.centreCountW, px: toX(d.playerProb) + cw + GAP, py: toY(d.centreCountW) })),
+  [moveData, toX, cw])
 
   function startAnim(setter, rafRef) {
     cancelAnimationFrame(rafRef.current)
@@ -105,7 +119,7 @@ export default function CenterProbPlot({
   let tipStyle = null
   if (hovState) {
     const { pt } = hovState
-    const left = Math.min(Math.max(pt.px - TW / 2, 0), TOTAL_W - TW)
+    const left = Math.min(Math.max(pt.px - TW / 2, 0), totalW - TW)
     const top  = pt.centreCount >= Y_MAX / 2 ? pt.py + 12 : pt.py - TH - 12
     tipStyle = { left, top }
   }
@@ -113,13 +127,13 @@ export default function CenterProbPlot({
   const hovPt = hovState?.pt ?? null
 
   function renderPane(pts, paneX, pieceColor, showYAxis, animFrac) {
-    const cx = PAD.l + PW / 2
+    const cx = PAD.l + pw / 2
     const label = pieceColor === 'b' ? 'Black' : 'White'
     return (
-      <svg key={pieceColor} width={CW} height={CH} className="cpp-svg" style={{ overflow: 'visible' }}>
+      <svg key={pieceColor} width={cw} height={CH} className="cpp-svg" style={{ overflow: 'visible' }}>
         <image href={`/pieces/${pieceColor}K.svg`} x={cx - 23} y={2} width={15} height={15} />
         <text x={cx - 4} y={13} className="cpp-pane-title" textAnchor="start">{label}</text>
-        <rect x={PAD.l} y={PAD.t} width={PW} height={PH} className="cpp-bg" rx="2" />
+        <rect x={PAD.l} y={PAD.t} width={pw} height={PH} className="cpp-bg" rx="2" />
 
         {/* Vertical grid + x ticks */}
         {X_TICKS.map(v => {
@@ -139,7 +153,7 @@ export default function CenterProbPlot({
           const y = toY(t)
           return (
             <g key={t}>
-              <line x1={PAD.l} y1={y} x2={PAD.l + PW} y2={y} className="cpp-grid-line" />
+              <line x1={PAD.l} y1={y} x2={PAD.l + pw} y2={y} className="cpp-grid-line" />
               {showYAxis && (
                 <text x={PAD.l - 5} y={y + 4} className="cpp-tick" textAnchor="end">{t}</text>
               )}
@@ -154,7 +168,7 @@ export default function CenterProbPlot({
           </text>
         )}
 
-        <text x={PAD.l + PW / 2} y={CH - 3} className="cpp-axis-label" textAnchor="middle">
+        <text x={PAD.l + pw / 2} y={CH - 3} className="cpp-axis-label" textAnchor="middle">
           Win Probability
         </text>
 
@@ -187,10 +201,10 @@ export default function CenterProbPlot({
   }
 
   return (
-    <div className="cpp-wrap" style={{ width: TOTAL_W }}>
+    <div ref={containerRef} className="cpp-wrap" style={{ width: '100%' }}>
       <div className="cpp-panes">
         {renderPane(blackPoints, 0,        'b', true,  bAnimFrac)}
-        {renderPane(whitePoints, CW + GAP, 'w', false, wAnimFrac)}
+        {renderPane(whitePoints, cw + GAP, 'w', false, wAnimFrac)}
       </div>
 
       {hovPt && tipStyle && (

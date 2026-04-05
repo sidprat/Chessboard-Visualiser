@@ -86,6 +86,20 @@ function AccuracySummary({ moves, evaluations, lightMode, moveIndex, onSelectMov
   const [bAnimFrac, setBAnimFrac] = useState(0)
   const wRaf = useRef(null)
   const bRaf = useRef(null)
+  const containerRef = useRef(null)
+  const [accW, setAccW] = useState(ACC_W)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([e]) => {
+      const w = e.contentRect.width
+      if (w > 0) setAccW(Math.max(ACC_W, w))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const accPlotW = accW - ACC_PLOT_X * 2
+  const accRightX = ACC_PLOT_X + accPlotW + 4
 
   const { white: wPts, black: bPts } = useMemo(() => {
     const white = [], black = []
@@ -159,7 +173,7 @@ function AccuracySummary({ moves, evaluations, lightMode, moveIndex, onSelectMov
     present.forEach(cls => { bandOffset[cls] = cumDots; cumDots += byClass[cls].length })
 
     return (
-      <svg width={ACC_W} height={svgH} className="acc-svg">
+      <svg width={accW} height={svgH} className="acc-svg">
         <image href={`/pieces/${pieceColor}K.svg`} x={4} y={1} width={13} height={13} />
         <text x={20} y={12} className="acc-spark-label">{label}</text>
         <g transform={`translate(${_VH * 3}, 0)`}>
@@ -171,17 +185,19 @@ function AccuracySummary({ moves, evaluations, lightMode, moveIndex, onSelectMov
           const color = clsColor[cls]
           const dataMin = Math.min(...rowPts.map(p => p.delta))
           const dataMax = Math.max(...rowPts.map(p => p.delta))
-          const dataSpan = dataMax - dataMin
+          const bandLo = lo !== null ? lo : dataMin
+          const bandHi = hi !== null ? hi : dataMax
+          const bandSpan = bandHi - bandLo
           const BAND_PAD = window.innerHeight * 0.008
-          const toBandX = dataSpan < 0.0001
-            ? () => ACC_PLOT_X + ACC_PLOT_W / 2
-            : delta => ACC_PLOT_X + BAND_PAD + ((delta - dataMin) / dataSpan) * (ACC_PLOT_W - BAND_PAD * 2)
+          const toBandX = bandSpan < 0.0001
+            ? () => ACC_PLOT_X + accPlotW / 2
+            : delta => ACC_PLOT_X + BAND_PAD + ((delta - bandLo) / bandSpan) * (accPlotW - BAND_PAD * 2)
 
           return (
             <g key={cls}>
-              <rect x={ACC_PLOT_X} y={bandTop + 2} width={ACC_PLOT_W} height={ACC_BAND_H - 4}
+              <rect x={ACC_PLOT_X} y={bandTop + 2} width={accPlotW} height={ACC_BAND_H - 4}
                 fill={color} opacity={0.06} rx={2} />
-              <line x1={ACC_PLOT_X} y1={bandCy} x2={ACC_PLOT_X + ACC_PLOT_W} y2={bandCy}
+              <line x1={ACC_PLOT_X} y1={bandCy} x2={ACC_PLOT_X + accPlotW} y2={bandCy}
                 stroke={color} strokeOpacity={0.15} strokeWidth={1} strokeDasharray="2 3" />
               <text x={ACC_CLS_X} y={bandCy + 4} className="acc-cls-text" textAnchor="end" fill={color}>
                 {cls[0].toUpperCase() + cls.slice(1)} <tspan opacity={0.6}>({rowPts.length})</tspan>
@@ -214,7 +230,7 @@ function AccuracySummary({ moves, evaluations, lightMode, moveIndex, onSelectMov
                 )
               })}
               {hi !== null && (
-                <text x={ACC_RIGHT_X} y={bandCy + 4} className="acc-edge-label" textAnchor="start">
+                <text x={accRightX} y={bandCy + 4} className="acc-edge-label" textAnchor="start">
                   {fmt(hi)}
                 </text>
               )}
@@ -231,14 +247,14 @@ function AccuracySummary({ moves, evaluations, lightMode, moveIndex, onSelectMov
   let tipStyle = null
   if (hovState) {
     const { cx, cy, panelOffsetY } = hovState
-    const left = Math.min(Math.max(cx - TW / 2, 0), ACC_W - TW)
+    const left = Math.min(Math.max(cx - TW / 2, 0), accW - TW)
     const absY = panelOffsetY + cy
     const top = cy < ACC_HEADER_H + ACC_BAND_H * 1.5 ? absY + 10 : absY - TH - 10
     tipStyle = { left, top }
   }
 
   return (
-    <div className="accuracy-summary" style={{ position: 'relative' }}>
+    <div ref={containerRef} className="accuracy-summary" style={{ position: 'relative' }}>
       {renderPanel(wPts, 'White', 'w', 0,        wAnimFrac)}
       {renderPanel(bPts, 'Black', 'b', wH + 10, bAnimFrac)}
 
