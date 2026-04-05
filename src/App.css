@@ -346,6 +346,13 @@ body {
   border-top-color: rgba(120, 80, 20, 0.15);
 }
 
+@media (min-width: 1656px) {
+  .panel-section-label {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
 /* Main content column — always centred by parent flex */
 .main-content {
   display: flex;
