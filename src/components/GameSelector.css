@@ -4,7 +4,7 @@
   min-width: 0;
 }
 
-.selector-input-wrap {
+.selector-bar {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -12,12 +12,18 @@
   border: 1px solid #2a2a4a;
   border-radius: 8px;
   padding: 8px 12px;
+  cursor: pointer;
   transition: border-color 0.2s;
   position: relative;
   isolation: isolate;
+  user-select: none;
 }
 
-.selector-input-wrap::after {
+.selector-bar:hover {
+  border-color: #3a3a6a;
+}
+
+.selector-bar::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -34,31 +40,20 @@
   mix-blend-mode: screen;
 }
 
-.selector-input-wrap:focus-within {
-  border-color: #7c7cff;
-  box-shadow: 0 0 0 2px rgba(124, 124, 255, 0.15);
-}
-
 .selector-icon {
   flex-shrink: 0;
   display: block;
 }
 
-.selector-input {
+.selector-label {
   flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
   color: #e0e0f0;
   font-size: 14px;
   font-weight: 500;
   min-width: 0;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.selector-input::placeholder {
-  color: #44446a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .selector-chevron {
@@ -146,11 +141,7 @@
   background: #1a1a38;
   border-left: 2px solid #7c7cff;
   padding-left: 10px;
-}
-
-.selector-option.selected-disabled {
   cursor: default;
-  pointer-events: none;
   opacity: 0.5;
 }
 
@@ -197,12 +188,16 @@
 }
 
 /* ─── Light mode ────────────────────────────────────────────────────────────── */
-.light-mode .selector-input-wrap {
+.light-mode .selector-bar {
   background: #ede0c4;
   border-color: #c4a870;
 }
 
-.light-mode .selector-input-wrap::after {
+.light-mode .selector-bar:hover {
+  border-color: #a07030;
+}
+
+.light-mode .selector-bar::after {
   background: radial-gradient(
     circle 200px at var(--cursor-x) var(--cursor-y),
     rgba(0, 0, 0, 0.04) 0%,
@@ -212,17 +207,8 @@
   mix-blend-mode: multiply;
 }
 
-.light-mode .selector-input-wrap:focus-within {
-  border-color: #a07030;
-  box-shadow: 0 0 0 2px rgba(160, 112, 48, 0.2);
-}
-
-.light-mode .selector-input {
+.light-mode .selector-label {
   color: #2a1a08;
-}
-
-.light-mode .selector-input::placeholder {
-  color: #b89c6c;
 }
 
 .light-mode .selector-icon rect {

@@ -39,7 +39,7 @@ function getPieceCode(move) {
   return (move.color === 'white' ? 'w' : 'b') + piece
 }
 
-export default function TimelineSlider({ moves, moveIndex, onChange, evaluations, hoveredMoveIndex, attemptProgress, lightMode }) {
+export default function TimelineSlider({ moves, moveIndex, onChange, evaluations, hoveredMoveIndex, attemptProgress, lightMode, challengeMoveIndex }) {
   const trackRef = useRef(null)
   const isDragging = useRef(false)
   const [hoverState, setHoverState] = useState(null)
@@ -237,6 +237,18 @@ export default function TimelineSlider({ moves, moveIndex, onChange, evaluations
             onTouchStart={handleKnobPointerDown}
           />
         </div>
+
+        {/* Challenge move indicator */}
+        {challengeMoveIndex != null && challengeMoveIndex > 0 && challengeMoveIndex <= moves.length && (() => {
+          const dotIdx = challengeMoveIndex - 1
+          const midRatio = (boundaryRatios[dotIdx] + boundaryRatios[dotIdx + 1]) / 2
+          return (
+            <div
+              className={`challenge-dot${lightMode ? ' challenge-dot-light' : ''}`}
+              style={{ left: `${midRatio * 100}%` }}
+            />
+          )
+        })()}
 
         {/* Hover tooltip */}
         {hoverState && (() => {

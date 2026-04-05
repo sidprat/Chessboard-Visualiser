@@ -449,12 +449,27 @@ export default function App() {
       if (br) br.style.display = hideRatings ? 'none' : ''
       // Level 2: re-measure without ratings → hide entire meta if still close
       const slimMetaRight = meta.getBoundingClientRect().right
-      meta.style.display = toggleRight - slimMetaRight < 40 ? 'none' : ''
+      const hidesMeta = toggleRight - slimMetaRight < 40
+      meta.style.display = hidesMeta ? 'none' : ''
+      document.documentElement.classList.toggle('header-meta-squeezed', hidesMeta)
     }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [selectedGame.id])
+
+  // Mirror white-rating visibility into a CSS class on <html> so CSS can
+  // hide the "End" label when ratings are squeezed out.
+  useEffect(() => {
+    const wr = whiteRatingRef.current
+    if (!wr) return
+    const sync = () =>
+      document.documentElement.classList.toggle('ratings-squeezed', wr.style.display === 'none')
+    sync()
+    const obs = new MutationObserver(sync)
+    obs.observe(wr, { attributes: true, attributeFilter: ['style'] })
+    return () => obs.disconnect()
+  }, [])
 
   const effectiveProbs = gameAnalyses[selectedGame.id] ?? selectedGame.probs
 
@@ -483,13 +498,25 @@ export default function App() {
     return { category: classifyMove(prevProb, currProb, color), delta }
   }, [moveIndex, evaluations, currentMoveData])
 
-  const nextMoveIsBrilliant = useMemo(() => {
-    if (moveIndex >= totalMoves) return false
-    const nextMove = selectedGame.moves[moveIndex]
-    const prevProb = evaluations[moveIndex]?.prob ?? 0.5
-    const currProb = evaluations[moveIndex + 1]?.prob ?? 0.5
-    return classifyMove(prevProb, currProb, nextMove.color) === 'brilliant'
-  }, [moveIndex, totalMoves, selectedGame.moves, evaluations])
+  // Find the move index of the most brilliant move (≥ move 6), falling back to
+  // the highest-delta move if no brilliant classification exists.
+  const challengeMoveIndex = useMemo(() => {
+    const moves = selectedGame.moves
+    let brilliantIdx = -1, brilliantDelta = -Infinity
+    let bestIdx = -1,     bestDelta     = -Infinity
+    moves.forEach((move, i) => {
+      if (i < 5) return  // skip moves 1-5
+      const prevProb = evaluations[i]?.prob ?? 0.5
+      const currProb = evaluations[i + 1]?.prob ?? 0.5
+      const delta = move.color === 'white' ? currProb - prevProb : prevProb - currProb
+      const cls = classifyMove(prevProb, currProb, move.color)
+      if (cls === 'brilliant' && delta > brilliantDelta) { brilliantDelta = delta; brilliantIdx = i }
+      if (delta > bestDelta) { bestDelta = delta; bestIdx = i }
+    })
+    return brilliantIdx !== -1 ? brilliantIdx : bestIdx
+  }, [selectedGame.moves, evaluations])
+
+  const showPredictButton = moveIndex === challengeMoveIndex
 
 
   // Start/reset countdown when attempt mode activates
@@ -793,7 +820,7 @@ export default function App() {
       <main className="app-main">
         {/* ── Left panel ── */}
         <div className="left-panel">
-          <div className="panel-section-label">Aggregate Stats</div>
+          <div className="panel-section-label">Aggregate Breakdown</div>
           <CollapsibleCard
             title="Average Board State"
             tooltip="Ternary plot: each move is placed by the board's balance of occupied squares, squares the side to move can reach (attacked), and uncontrolled squares (free). Coloured by move classification."
@@ -844,7 +871,7 @@ export default function App() {
 
         {/* ── Right panel ── */}
         <div className="right-panel">
-          <div className="panel-section-label">Move-Level Stats</div>
+          <div className="panel-section-label">Move-Wise Breakdown</div>
           <CollapsibleCard
             title="Centre Vulnerability vs Move Quality"
             tooltip="X-axis: win % change (right = good, left = bad). Y-axis: how many opponent pieces were attacking the centre. Blunders shown in red — see if they cluster under heavy central pressure."
@@ -922,7 +949,7 @@ export default function App() {
         <div className="board-and-clock" style={{ '--sq': squareSize + 'px' }}>
           <div className="board-col">
             <div className="board-top-row">
-              <div className="move-badge">
+              <div className={`move-badge${showPredictButton && !attemptMode ? ' move-badge-predict' : ''}`}>
                 {attemptMode ? (
                   attemptResult === 'correct' ? (
                     <span className="attempt-correct">Amazing, you solved it in {solvedTimeRef.current} less seconds than {(selectedGame.moves[moveIndex]?.color === 'white' ? selectedGame.white : selectedGame.black)?.split(' ')[0]}!</span>
@@ -963,10 +990,10 @@ export default function App() {
                         <line x1="1.5" y1="1.5" x2="8.5" y2="8.5"/>
                         <line x1="8.5" y1="1.5" x2="1.5" y2="8.5"/>
                       </svg>
-                      End
+                      <span className="cancel-btn-label">End</span>
                     </button>
                   </>
-                ) : nextMoveIsBrilliant ? (
+                ) : showPredictButton ? (
                   <button className="attempt-btn" onClick={() => {
   const isBlack = selectedGame.moves[moveIndex]?.color === 'black'
   countdownDelayRef.current = isBlack ? 1050 : 0
@@ -1055,6 +1082,7 @@ export default function App() {
               return dur > 0 ? 1 - timeLeft / dur : null
             })()}
             lightMode={lightMode}
+            challengeMoveIndex={challengeMoveIndex}
           />
         </div>
 
@@ -1081,7 +1109,7 @@ export default function App() {
 
         {/* ── Inline panels (shown when left/right panels are hidden at ≤1655px) ── */}
         <div className="inline-panels">
-          <div className="panel-section-label">Aggregate Stats</div>
+          <div className="panel-section-label">Aggregate Breakdown</div>
           <CollapsibleCard
             title="Average Board State"
             tooltip="Ternary plot: each move is placed by the board's balance of occupied squares, squares the side to move can reach (attacked), and uncontrolled squares (free). Coloured by move classification."
@@ -1126,7 +1154,7 @@ export default function App() {
               open={openCardInline === 'mvp'}
             />
           </CollapsibleCard>
-          <div className="panel-section-label" style={{ marginTop: 8 }}>Move-Level Stats</div>
+          <div className="panel-section-label">Move-Wise Breakdown</div>
           <CollapsibleCard
             title="Centre Vulnerability vs Move Quality"
             tooltip="X-axis: win % change (right = good, left = bad). Y-axis: how many opponent pieces were attacking the centre. Blunders shown in red — see if they cluster under heavy central pressure."

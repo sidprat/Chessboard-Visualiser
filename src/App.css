@@ -180,6 +180,7 @@ body {
 /* Piece animation on toggle */
 /* Piece animation on toggle — no scale change, bounce handled by knob transition */
 
+
 /* Header */
 .app-header {
   width: 100%;
@@ -189,8 +190,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  background: #0a0a16;
-  position: relative;
+  background: rgba(10, 10, 22, 0.82);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  position: sticky;
+  top: 0;
+  z-index: 200;
 }
 
 .header-title {
@@ -331,11 +336,14 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(180, 170, 255, 0.45);
-  padding: 0 4px;
+  padding: 14px 4px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  width: 100%;
 }
 
 .light-mode .panel-section-label {
   color: rgba(100, 70, 20, 0.45);
+  border-top-color: rgba(120, 80, 20, 0.15);
 }
 
 /* Main content column — always centred by parent flex */
@@ -663,6 +671,11 @@ body {
   border-radius: 10px;
 }
 
+.header-meta-squeezed .move-badge-predict .move-class-pill,
+.header-meta-squeezed .move-badge-predict .badge-time {
+  display: none;
+}
+
 /* Nav buttons */
 .nav-buttons {
   display: flex;
@@ -836,7 +849,7 @@ body:has(.light-mode) {
 
 /* Header */
 .light-mode .app-header {
-  background: #e8dfc8;
+  background: rgba(232, 223, 200, 0.88);
   border-bottom-color: #d4c4a0;
 }
 
@@ -945,48 +958,59 @@ body:has(.light-mode) {
 @keyframes attempt-pulse-light {
   0%, 100% {
     box-shadow:
-      0 4px 10px rgba(80, 40, 10, 0.45),
-      0 2px 4px  rgba(80, 40, 10, 0.3),
-      inset 0  1px 0   rgba(255, 255, 255, 0.5),
-      inset 0 -2px 5px rgba(80, 40, 10, 0.2),
+      0 4px 10px rgba(80, 50, 5, 0.45),
+      0 2px 4px  rgba(80, 50, 5, 0.3),
+      inset 0  1px 0   rgba(255, 255, 255, 0.55),
+      inset 0 -2px 5px rgba(100, 60, 5, 0.25),
       inset  1px 0 0   rgba(255, 255, 255, 0.3),
-      inset -1px 0 0   rgba(80, 40, 10, 0.12),
-      0 0  6px 1px rgba(29, 180, 120, 0.18),
-      0 0 14px 2px rgba(20, 150, 100, 0.08);
+      inset -1px 0 0   rgba(80, 50, 5, 0.12),
+      0 0  6px 1px rgba(200, 150, 20, 0.2),
+      0 0 14px 2px rgba(180, 130, 10, 0.1);
   }
   50% {
     box-shadow:
-      0 4px 10px rgba(80, 40, 10, 0.45),
-      0 2px 4px  rgba(80, 40, 10, 0.3),
-      inset 0  1px 0   rgba(255, 255, 255, 0.5),
-      inset 0 -2px 5px rgba(80, 40, 10, 0.2),
+      0 4px 10px rgba(80, 50, 5, 0.45),
+      0 2px 4px  rgba(80, 50, 5, 0.3),
+      inset 0  1px 0   rgba(255, 255, 255, 0.55),
+      inset 0 -2px 5px rgba(100, 60, 5, 0.25),
       inset  1px 0 0   rgba(255, 255, 255, 0.3),
-      inset -1px 0 0   rgba(80, 40, 10, 0.12),
-      0 0 12px 3px rgba(29, 180, 120, 0.45),
-      0 0 28px 6px rgba(20, 150, 100, 0.18);
+      inset -1px 0 0   rgba(80, 50, 5, 0.12),
+      0 0 12px 3px rgba(210, 160, 20, 0.5),
+      0 0 28px 6px rgba(190, 140, 10, 0.22);
   }
 }
 
 .light-mode .attempt-btn {
   background:
-    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(29, 160, 100, 0.28) 0%, transparent 70%),
-    linear-gradient(170deg, #a8dfc0 0%, #88ccaa 55%, #70bc94 100%);
-  border-color: #80c4a0;
-  color: #1a6e4a;
-  text-shadow: none;
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 210, 80, 0.35) 0%, transparent 70%),
+    linear-gradient(170deg, #f5d060 0%, #e8b828 55%, #d4a010 100%);
+  border-color: #c49010;
+  color: #5a3205;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
   animation-name: attempt-pulse-light;
 }
 
 .light-mode .attempt-btn:hover {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 220, 100, 0.45) 0%, transparent 70%),
+    linear-gradient(170deg, #f8d870 0%, #ecc030 55%, #daa818 100%);
   box-shadow:
-    0 4px 10px rgba(80, 40, 10, 0.45),
-    0 2px 4px  rgba(80, 40, 10, 0.3),
-    inset 0  1px 0   rgba(255, 255, 255, 0.5),
-    inset 0 -2px 5px rgba(80, 40, 10, 0.2),
+    0 4px 10px rgba(80, 50, 5, 0.45),
+    0 2px 4px  rgba(80, 50, 5, 0.3),
+    inset 0  1px 0   rgba(255, 255, 255, 0.55),
+    inset 0 -2px 5px rgba(100, 60, 5, 0.25),
     inset  1px 0 0   rgba(255, 255, 255, 0.3),
-    inset -1px 0 0   rgba(80, 40, 10, 0.12),
-    0 0 16px 4px rgba(29, 180, 120, 0.35),
-    0 0 32px 8px rgba(20, 150, 100, 0.15);
+    inset -1px 0 0   rgba(80, 50, 5, 0.12),
+    0 0 16px 4px rgba(210, 160, 20, 0.4),
+    0 0 32px 8px rgba(190, 140, 10, 0.18);
+}
+
+.ratings-squeezed .cancel-btn-label {
+  display: none;
+}
+
+.light-mode .attempt-label {
+  color: #7a4e18;
 }
 
 .light-mode .cancel-btn {
